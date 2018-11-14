@@ -2,6 +2,7 @@ package com.yy.sumulate;
 
 import android.app.Activity;
 import android.graphics.Point;
+import android.util.Log;
 import android.view.InputEvent;
 import android.view.ViewConfiguration;
 
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class SequenceSimulate extends InputEventSimulate {
+    private final static String TAG = SequenceSimulate.class.getSimpleName();
     private final List<InputEventSimulate> group = new ArrayList<>();
 
     /**
@@ -65,6 +67,7 @@ public class SequenceSimulate extends InputEventSimulate {
      * @return
      */
     private synchronized InputEvent retrieveInputEvent() {
+        Log.d(TAG, String.format("retrieveInputEvent():%d, %d, %d", index, _seq.get(), hashCode()));
         if (index < 0 || index >= group.size()) {
             return null;
         }
