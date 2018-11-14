@@ -30,6 +30,8 @@ import com.ycloud.utils.FileUtils
 import com.ycloud.ymrmodel.MediaSampleExtraInfo
 import com.yy.media.MediaConfig
 import com.yy.media.MediaUtils
+import com.yy.sumulate.ClickViewSimulate
+import com.yy.sumulate.SequenceSimulate
 import kotlinx.android.synthetic.main.fragment_record.*
 import java.io.File
 import java.io.FileOutputStream
@@ -232,7 +234,7 @@ class RecordFragment : Fragment() {
         //
         val speedModes = arrayOf(speed_mode_0, speed_mode_1, speed_mode_2, speed_mode_3, speed_mode_4)
         val listener = View.OnClickListener {
-            Log.d(TAG, "SpeedModes.OnViewClick():$it")
+            Log.d(TAG, "SpeedModes.OnClick():$it")
             if (!isInitialed.get()) {
                 return@OnClickListener
             }
@@ -248,6 +250,10 @@ class RecordFragment : Fragment() {
             Log.d(TAG, "SpeedModes.setOnClickListener():$it")
             it.setOnClickListener(listener)
             it.isSelected = false
+            it.setOnTouchListener { v, event ->
+                Log.d(TAG, "SpeedModes.OnTouch():${event.action}")
+                return@setOnTouchListener false
+            }
         }
         speed_mode_2.isSelected = true
         //
@@ -258,6 +264,14 @@ class RecordFragment : Fragment() {
                 return@setOnClickListener
             }
             btn_voice.text = TunerName[tuner.incrementAndGet() % TunerName.size]
+        }
+        mTimer.schedule(5000) {
+            val seq = SequenceSimulate(activity)
+                .addSimulate(ClickViewSimulate.obtain(activity, speed_mode_0))
+                .addSimulate(ClickViewSimulate.obtain(activity, btn_voice))
+                .addSimulate(ClickViewSimulate.obtain(activity, speed_mode_4))
+                .addSimulate(ClickViewSimulate.obtain(activity, toggle_camera))
+            seq.simulate()
         }
     }
 

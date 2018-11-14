@@ -6,7 +6,7 @@ import android.util.Log;
 
 public class ClickPointSimulate extends SequenceSimulate {
     private static final String TAG = ClickPointSimulate.class.getSimpleName();
-    private final Point point;
+    protected final Point point;
 
     /**
      * 构造函数
@@ -20,7 +20,10 @@ public class ClickPointSimulate extends SequenceSimulate {
         if (null == point) {
             throw new IllegalArgumentException("point cannot be null.");
         }
-        addSimulate(DownEventSimulate.obtain(base, point)).addSimulate(UpEventSimulate.obtain(base, point));
+        addSimulate(CancelEventSimulate.obtain(base, point))
+                .addSimulate(DownEventSimulate.obtain(base, point))
+                .addSimulate(UpEventSimulate.obtain(base, point))
+                .addSimulate(CancelEventSimulate.obtain(base, point));
     }
 
     /**

@@ -28,7 +28,7 @@ public class ClickViewSimulate extends InputEventSimulate {
 
     @Override
     InputEvent createInputEvent(int seq) {
-        Log.d(TAG, "createInputEvent():" + seq);
+        Log.d(TAG, String.format("createInputEvent():%d, %d, %d, %d", seq, real.point.x, real.point.y, target.hashCode()));
         return real.createInputEvent(seq);
     }
 
