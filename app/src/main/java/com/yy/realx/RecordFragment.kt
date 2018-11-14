@@ -30,8 +30,6 @@ import com.ycloud.utils.FileUtils
 import com.ycloud.ymrmodel.MediaSampleExtraInfo
 import com.yy.media.MediaConfig
 import com.yy.media.MediaUtils
-import com.yy.sumulate.ClickViewSimulate
-import com.yy.sumulate.SequenceSimulate
 import kotlinx.android.synthetic.main.fragment_record.*
 import java.io.File
 import java.io.FileOutputStream
@@ -265,6 +263,7 @@ class RecordFragment : Fragment() {
             }
             btn_voice.text = TunerName[tuner.incrementAndGet() % TunerName.size]
         }
+        /*
         mTimer.schedule(5000) {
             val seq = SequenceSimulate(activity)
                 .addSimulate(ClickViewSimulate.obtain(activity, speed_mode_0))
@@ -273,6 +272,7 @@ class RecordFragment : Fragment() {
                 .addSimulate(ClickViewSimulate.obtain(activity, toggle_camera))
             seq.simulate()
         }
+        */
     }
 
     private var effect = FilterIDManager.NO_ID
