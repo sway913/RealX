@@ -82,7 +82,7 @@ public abstract class InputEventSimulate implements Runnable {
 //                }
             }
             //loop next
-            handler.postDelayed(this, 10);
+            handler.postDelayed(this, 30);
         }
     }
 

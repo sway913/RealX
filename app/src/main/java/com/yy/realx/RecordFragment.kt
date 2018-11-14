@@ -266,10 +266,9 @@ class RecordFragment : Fragment() {
         /*
         mTimer.schedule(5000) {
             val seq = SequenceSimulate(activity)
-                .addSimulate(ClickViewSimulate.obtain(activity, speed_mode_0))
-                .addSimulate(ClickViewSimulate.obtain(activity, btn_voice))
-                .addSimulate(ClickViewSimulate.obtain(activity, speed_mode_4))
                 .addSimulate(ClickViewSimulate.obtain(activity, toggle_camera))
+                .addSimulate(ClickViewSimulate.obtain(activity, btn_voice))
+                .addSimulate(ClickViewSimulate.obtain(activity, btn_avatar))
             seq.simulate()
         }
         */
