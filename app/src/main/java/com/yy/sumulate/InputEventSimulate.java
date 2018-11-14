@@ -1,9 +1,11 @@
 package com.yy.sumulate;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.support.annotation.CallSuper;
 import android.util.Log;
 import android.view.InputEvent;
@@ -11,10 +13,11 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class SimulateTask implements Runnable {
-    private static final String TAG = SimulateTask.class.getSimpleName();
+public abstract class InputEventSimulate implements Runnable {
+    private static final String TAG = InputEventSimulate.class.getSimpleName();
     protected final Activity base;
     private Instrumentation inst;
     private AtomicInteger seq = new AtomicInteger(0);
@@ -24,22 +27,22 @@ public abstract class SimulateTask implements Runnable {
      *
      * @param base
      */
-    SimulateTask(Activity base) {
+    @SuppressLint("PrivateApi")
+    public InputEventSimulate(Activity base) {
         if (null == base) {
             throw new IllegalArgumentException("Activity host cannot be null.");
         }
         this.base = base;
         //反射获取inst
         try {
-            Field field = base.getClass().getDeclaredField("mInstrumentation");
+            Class<?> clazz = Class.forName("android.app.ActivityThread");
+            Method method = clazz.getDeclaredMethod("currentActivityThread");
+            method.setAccessible(true);
+            Object thread = method.invoke(null);
+            Field field = clazz.getDeclaredField("mInstrumentation");
             field.setAccessible(true);
-            Object object = field.get(base);
-            if (object instanceof Instrumentation) {
-                inst = (Instrumentation) object;
-            } else {
-                inst = null;
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            inst = (Instrumentation) field.get(thread);
+        } catch (Exception e) {
             e.printStackTrace();
             inst = null;
         }
@@ -48,7 +51,7 @@ public abstract class SimulateTask implements Runnable {
     @CallSuper
     @Override
     public void run() {
-        Log.d(TAG, "SimulateTask.run()");
+        Log.d(TAG, "InputEventSimulate.run()");
         InputEvent event = createInputEvent(seq.getAndIncrement());
         if (null != event) {
             if (event instanceof KeyEvent) {
@@ -79,8 +82,22 @@ public abstract class SimulateTask implements Runnable {
                 }
             }
             //loop next
-            handler.postDelayed(this, 20);
+            handler.postDelayed(this, 10);
         }
+    }
+
+    /**
+     * 静态创建方法
+     *
+     * @param action
+     * @param x
+     * @param y
+     * @return
+     */
+    protected static MotionEvent obtain(int action, float x, float y) {
+        long sync = SystemClock.uptimeMillis();
+        long time = SystemClock.uptimeMillis();
+        return MotionEvent.obtain(sync, time, action, x, y, 0);
     }
 
     /**
@@ -98,7 +115,7 @@ public abstract class SimulateTask implements Runnable {
      * 准备开始分发事件
      */
     public void simulate() {
-        Log.d(TAG, "SimulateTask.simulate():" + seq.get());
+        Log.d(TAG, "InputEventSimulate.simulate():" + seq.get());
         //创建线程
         if (null == handler) {
             thread = new HandlerThread(toString());
