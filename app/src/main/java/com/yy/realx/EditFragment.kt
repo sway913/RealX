@@ -180,7 +180,7 @@ class EditFragment : Fragment() {
         if (checked) {
             music.setBackgroundMusic(audio.tuner, 0.0f, 1.0f)
         } else {
-            music.setBackgroundMusic(null, 1.0f, 0.0f)
+            music.setBackgroundMusic(audio.path, 0.0f, 1.0f)
         }
         mViewInternal.setVFilters(music)
         seekTo(0)
@@ -243,7 +243,7 @@ class EditFragment : Fragment() {
         dialog.setOnKeyListener { dialog, keyCode, event -> true }
         val filter = VideoFilter(context)
         filter.exportBgm = audio.tuner ?: audio.path
-        filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f)
+        filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f, audio.start)
         val export = VideoExport(context, video.path, out, filter)
         export.setMediaListener(object : IMediaListener {
             override fun onProgress(progress: Float) {
@@ -283,8 +283,11 @@ class EditFragment : Fragment() {
      * 变更背景音乐
      */
     private fun updateTunerByNow(audio: AudioSettings) {
+        if (null == music) {
+            music = VideoFilter(context)
+        }
         val path = audio.tuner
-        music.setBackgroundMusic(path, 0.0f, 1.0f)
+        music!!.setBackgroundMusic(path, 0.0f, 1.0f, audio.start)
         mViewInternal.setVFilters(music)
         //重新开始
         seekTo(0)
