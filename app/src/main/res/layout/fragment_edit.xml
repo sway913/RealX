@@ -48,12 +48,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/icon_size_small"/>
 
+        <TextView
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_marginTop="@dimen/icon_margin_top"
+                android:text="音效&amp;混音:"
+                android:id="@+id/mixer_header"
+                app:layout_constraintTop_toBottomOf="@id/toggle_music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/toggle_mixer"
                 android:padding="@dimen/btn_padding"
                 android:background="@drawable/btn_background"
                 android:layout_marginTop="@dimen/icon_margin_top"
-                app:layout_constraintTop_toBottomOf="@id/toggle_music"
+                app:layout_constraintTop_toBottomOf="@id/mixer_header"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 

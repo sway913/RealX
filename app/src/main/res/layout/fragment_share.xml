@@ -27,7 +27,7 @@
             app:layout_constraintBottom_toTopOf="@id/share_done"
             android:layout_marginStart="@dimen/icon_margin_start"
             android:layout_marginEnd="@dimen/icon_margin_end"
-            android:layout_marginBottom="@dimen/icon_margin_large"
+            android:layout_marginBottom="@dimen/icon_margin_xlarge"
             android:id="@+id/share_scroller"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
@@ -93,7 +93,7 @@
             app:layout_constraintBottom_toTopOf="@id/share_scroller"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="@dimen/icon_margin_large"
+            android:layout_margin="@dimen/icon_margin_xlarge"
             android:layout_width="match_parent"
             android:layout_height="0dip"/>
 
