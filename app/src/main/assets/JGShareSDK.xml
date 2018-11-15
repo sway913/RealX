@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DevInfor>
+    <SinaWeibo
+            AppKey="新浪微博的AppKey"
+            AppSecret="新浪微博ppSecret"
+            RedirectUrl="微博开放平台填写的授权回调页"/>
+
+    <QQ
+            AppId="QQ 的 AppId"
+            AppKey="QQ 的 AppKey"/>
+
+    <Wechat
+            AppId="微信的 AppId"
+            AppSecret=" 微信的 AppSectet"/>
+</DevInfor>
