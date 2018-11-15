@@ -206,7 +206,7 @@ class RecordFragment : Fragment() {
             isRecording = !isRecording
         }
         //
-        btn_finish.isEnabled = false
+        btn_finish.isEnabled = mModel.video.value?.segments?.isNotEmpty() ?: false
         btn_finish.setOnClickListener {
             Log.d(TAG, "NextStage.OnClick()")
             if (!isInitialed.get()) {
