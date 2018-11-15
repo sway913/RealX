@@ -86,6 +86,7 @@ data class VideoSegment(val index: Int, val path: String) {
  */
 data class AudioSettings(val path: String, val start: Int = 0) {
     var tuner: String = path.replace(".wav", "_tuner.wav")
+    var mixer: String = path.replace(".wav", "_mixer.wav")
 }
 
 /**

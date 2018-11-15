@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import com.ycloud.player.widget.MediaPlayerListener
 import com.ycloud.svplayer.SvVideoViewInternal
-import kotlinx.android.synthetic.main.fragment_edit.*
 import kotlinx.android.synthetic.main.fragment_share.*
 
 class ShareFragment : Fragment() {

@@ -137,6 +137,9 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@setOnClickListener
             }
+            if (isRecording) {
+                return@setOnClickListener
+            }
             mVideoRecord.switchCamera()
             if (mRecordConfig.cameraId == VideoRecordConstants.FRONT_CAMERA) {
                 mRecordConfig.cameraId = VideoRecordConstants.BACK_CAMERA
@@ -209,6 +212,9 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@setOnClickListener
             }
+            if (isRecording) {
+                return@setOnClickListener
+            }
             checkNotNull(mModel.video.value)
             concatVideoSegments()
         }
@@ -216,6 +222,9 @@ class RecordFragment : Fragment() {
         btn_avatar.setOnClickListener {
             Log.d(TAG, "AvatarEffect.OnClick()")
             if (!isInitialed.get()) {
+                return@setOnClickListener
+            }
+            if (isRecording) {
                 return@setOnClickListener
             }
             val effect = EffectDialogFragment()
@@ -247,6 +256,9 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@OnClickListener
             }
+            if (isRecording) {
+                return@OnClickListener
+            }
             if (!it.isSelected) {
                 speedModes.forEach { view ->
                     view.isSelected = (view == it)
@@ -270,6 +282,9 @@ class RecordFragment : Fragment() {
         btn_voice.setOnClickListener {
             Log.d(TAG, "VoiceTuner.OnClick()")
             if (!isInitialed.get()) {
+                return@setOnClickListener
+            }
+            if (isRecording) {
                 return@setOnClickListener
             }
             btn_voice.text = TunerName[tuner.incrementAndGet() % TunerName.size]

@@ -2,19 +2,33 @@ package com.yy.realx
 
 import android.app.ProgressDialog
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import com.ycloud.api.process.IMediaListener
 import com.ycloud.api.process.VideoExport
 import com.ycloud.mediaprocess.VideoFilter
 import com.ycloud.player.widget.MediaPlayerListener
 import com.ycloud.svplayer.SvVideoViewInternal
+import com.ycloud.utils.FileUtils
 import com.yy.android.ai.audiodsp.IOneKeyTunerApi
+import com.yy.audioengine.IAudioLibJniInit
+import com.yy.audioengine.IKaraokeFileMixerNotity
+import com.yy.audioengine.KaraokeFileMixer
 import kotlinx.android.synthetic.main.fragment_edit.*
+import kotlinx.android.synthetic.main.fragment_mixer_item.view.*
+import java.io.File
+import java.io.InputStreamReader
+import java.nio.charset.Charset
 import java.util.*
 import kotlin.concurrent.schedule
 import kotlin.concurrent.scheduleAtFixedRate
@@ -32,6 +46,12 @@ class EditFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         prepareEditView()
+    }
+
+    private val mEngine: KaraokeFileMixer by lazy {
+        KaraokeFileMixer().apply {
+            IAudioLibJniInit.InitLib(context)
+        }
     }
 
     private val mModel: RealXViewModel by lazy {
@@ -81,6 +101,91 @@ class EditFragment : Fragment() {
             exportVideoWithParams(video)
         }
         tunerWithModes(video)
+        toggle_music.setOnCheckedChangeListener { view, isChecked ->
+            Log.d(TAG, "Toggle.OnCheckedChangeListener():$isChecked")
+            switchVolume(isChecked, audio)
+        }
+        toggle_mixer.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        val adapter = MixerAdapter(context!!)
+        adapter.setOnItemClickListener {
+            Log.d(TAG, "setOnItemClickListener():${it.name}")
+            applyMixer(it)
+        }
+        toggle_mixer.adapter = adapter
+    }
+
+    /**
+     * 音调处理
+     */
+    private fun applyMixer(mixer: MixerItem) {
+        Log.d(TAG, "applyMixer():${mixer.name}")
+        mTimer.schedule(0) {
+            val audio = mModel.video.value?.audio ?: return@schedule
+            if (!mEngine.Open(audio.tuner, "")) {
+                return@schedule
+            }
+            mEngine.EnableEqualizer(mixer.eqEnable)
+            if (mixer.eqEnable) {
+                mEngine.SetEqGains(mixer.eq)
+            }
+            mEngine.EnableCompressor(mixer.compressEnable)
+            if (mixer.compressEnable) {
+                mEngine.SetCompressorParam(mixer.compressor)
+            }
+            mEngine.EnableReverbNew(mixer.reverbEnable)
+            if (mixer.reverbEnable) {
+                mEngine.SetReverbNewParam(mixer.reverb)
+            }
+            mEngine.EnableLimiter(mixer.limiterEnable)
+            if (mixer.limiterEnable) {
+                mEngine.SetLimiterParam(mixer.limiter)
+            }
+            mEngine.SetKaraokeFileMixerNotify(object : IKaraokeFileMixerNotity {
+                override fun OnFileMixerState(progress: Long, total: Long) {
+                    val percent = Math.min(progress * 100 / total, 99)
+                    Log.d(TAG, "OnFileMixerState():$percent")
+                }
+
+                override fun OnFinishMixer() {
+                    Log.d(TAG, "OnFinishMixer():${audio.mixer}")
+                    mEngine.Stop()
+                    updateMixerByNow(audio)
+                }
+            })
+            FileUtils.deleteFileSafely(File(audio.mixer))
+            if (!mEngine.Start(audio.mixer)) {
+                return@schedule
+            }
+        }
+    }
+
+    /**
+     * 使用音效
+     */
+    private fun updateMixerByNow(audio: AudioSettings) {
+        if (null == music) {
+            music = VideoFilter(context)
+        }
+        music!!.setBackgroundMusic(audio.mixer, 0.0f, 1.0f, audio.start)
+        mViewInternal.setVFilters(music)
+        seekTo(0)
+    }
+
+    /**
+     * 原声变声切换
+     */
+    private fun switchVolume(checked: Boolean, audio: AudioSettings) {
+        Log.d(TAG, "switchVolume():$checked")
+        if (null == music) {
+            music = VideoFilter(context)
+        }
+        if (checked) {
+            music!!.setBackgroundMusic(audio.tuner, 0.0f, 1.0f, audio.start)
+        } else {
+            music!!.setBackgroundMusic(null, 1.0f, 0.0f)
+        }
+        mViewInternal.setVFilters(music)
+        seekTo(0)
     }
 
     private fun tunerWithModes(video: VideoSettings) {
@@ -174,16 +279,24 @@ class EditFragment : Fragment() {
         }
     }
 
+    var music: VideoFilter? = null
+
     /**
      * 变更背景音乐
      */
     private fun updateTunerByNow(audio: AudioSettings) {
-        var music = VideoFilter(context)
+        if (null == music) {
+            music = VideoFilter(context)
+        }
         val path = audio.tuner
-        music.setBackgroundMusic(path, 0.0f, 1.0f, audio.start)
+        music!!.setBackgroundMusic(path, 0.0f, 1.0f, audio.start)
         mViewInternal.setVFilters(music)
         //重新开始
         seekTo(0)
+        //菜单显示
+        activity!!.runOnUiThread {
+            edit_menu.visibility = View.VISIBLE
+        }
     }
 
     private var listener: TimerTask? = null
@@ -235,7 +348,88 @@ class EditFragment : Fragment() {
         mViewInternal.stopPlayback()
     }
 
+    data class MixerItem(
+        @SerializedName("Reverb")
+        var reverb: FloatArray? = null,
+        @SerializedName("limiterEnable")
+        var limiterEnable: Boolean = false,
+        @SerializedName("reverbEnable")
+        var reverbEnable: Boolean = false,
+        @SerializedName("name")
+        var name: String = "",
+        @SerializedName("icon")
+        var icon: String = "",
+        @SerializedName("Compressor")
+        var compressor: IntArray? = null,
+        @SerializedName("EQ")
+        var eq: FloatArray? = null,
+        @SerializedName("compressEnable")
+        var compressEnable: Boolean = false,
+        @SerializedName("key")
+        var key: String = "",
+        @SerializedName("Limiter")
+        var limiter: FloatArray? = null,
+        @SerializedName("eqEnable")
+        var eqEnable: Boolean = false
+    ) {
+        override fun equals(other: Any?): Boolean {
+            return super.equals(other)
+        }
+
+        override fun hashCode(): Int {
+            return super.hashCode()
+        }
+    }
+
+    class MixerViewHolder(val view: View) : RecyclerView.ViewHolder(view)
+
+    class MixerAdapter(val context: Context) : RecyclerView.Adapter<MixerViewHolder>() {
+        val list: Array<MixerItem>
+
+        init {
+            val stream = context.assets.open("mixer.json")
+            val reader = InputStreamReader(stream, Charset.forName("utf-8"))
+            val type = object : TypeToken<Array<MixerItem>>() {}.type
+            list = Gson().fromJson<Array<MixerItem>>(reader, type)
+        }
+
+        override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): MixerViewHolder {
+            Log.d(TAG, "onCreateViewHolder()")
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.fragment_mixer_item, viewGroup, false)
+            return MixerViewHolder(view)
+        }
+
+        override fun getItemCount(): Int {
+            Log.d(TAG, "getItemCount()")
+            return list.size
+        }
+
+        override fun onBindViewHolder(holder: MixerViewHolder, position: Int) {
+            Log.d(TAG, "onBindViewHolder()")
+            val item = list[position]
+            holder.view.mixer_name.text = item.name
+            holder.view.setOnClickListener {
+                Log.d(TAG, "setOnClickListener():${item.name}")
+                listener?.invoke(item)
+            }
+        }
+
+        var listener: ((MixerItem) -> Unit)? = null
+
+        /**
+         * 监听器
+         */
+        fun setOnItemClickListener(function: (MixerItem) -> Unit) {
+            this.listener = function
+        }
+    }
+
     //----------------------生命周期------------------------//
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mEngine.Init()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -250,6 +444,7 @@ class EditFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         release()
+        mEngine.Destroy()
         mTimer.cancel()
     }
 }
