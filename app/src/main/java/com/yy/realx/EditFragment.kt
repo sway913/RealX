@@ -21,6 +21,7 @@ import com.ycloud.player.widget.MediaPlayerListener
 import com.ycloud.svplayer.SvVideoViewInternal
 import com.ycloud.utils.FileUtils
 import com.yy.android.ai.audiodsp.IOneKeyTunerApi
+import com.yy.audioengine.AudioUtils
 import com.yy.audioengine.IAudioLibJniInit
 import com.yy.audioengine.IKaraokeFileMixerNotity
 import com.yy.audioengine.KaraokeFileMixer
@@ -144,19 +145,25 @@ class EditFragment : Fragment() {
             }
             mEngine.SetVoiceVolume(100)
             mEngine.SetKaraokeFileMixerNotify(object : IKaraokeFileMixerNotity {
+                var duration: Long = 0
+
                 override fun OnFileMixerState(progress: Long, total: Long) {
                     val percent = Math.min(progress * 100 / total, 99)
                     Log.d(TAG, "OnFileMixerState():$percent")
+                    duration = total
                 }
 
                 override fun OnFinishMixer() {
                     Log.d(TAG, "OnFinishMixer():${audio.mixer}")
                     mEngine.Stop()
+                    val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
+                    AudioUtils.TransAudioFileToWav(aac, audio.mixer, duration)
                     updateMixerByNow(audio)
                 }
             })
             FileUtils.deleteFileSafely(File(audio.mixer))
-            if (!mEngine.Start(audio.mixer)) {
+            val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
+            if (!mEngine.Start(aac)) {
                 return@schedule
             }
         }
