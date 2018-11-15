@@ -32,6 +32,10 @@ class RealXViewModel : ViewModel() {
  * 视频数据
  */
 data class VideoSettings(val path: String) {
+    companion object {
+        const val EXT = ".mp4"
+    }
+
     private val generator = AtomicInteger(0)
     val segments = mutableListOf<VideoSegment>()
     val duration: Long
@@ -46,9 +50,9 @@ data class VideoSettings(val path: String) {
     //编辑区域数据
     val audio: AudioSettings
         get() {
-            return AudioSettings(path.replace(".mp4", ".wav"), 0)
+            return AudioSettings(path.replace(EXT, AudioSettings.EXT), 0)
         }
-    val export: String = path.replace(".mp4", "_export.mp4")
+    val export: String = path.replace(EXT, "_export$EXT")
 
     /**
      * 获取segment
@@ -57,7 +61,7 @@ data class VideoSettings(val path: String) {
     fun segmentAt(index: Int): VideoSegment {
         if (index < 0) {
             val id = generator.getAndIncrement()
-            segments.add(VideoSegment(id, path.replace(".mp4", "_P$id.mp4")))
+            segments.add(VideoSegment(id, path.replace(EXT, "_P$id$EXT")))
         } else if (index >= segments.size) {
             throw NoSuchElementException("Index is out of bound.($index/${segments.size})")
         }
@@ -85,7 +89,12 @@ data class VideoSegment(val index: Int, val path: String) {
  * 音频数据
  */
 data class AudioSettings(val path: String, val start: Int = 0) {
-    var tuner: String = path.replace(".wav", "_tuner.wav")
+    companion object {
+        const val EXT = ".wav"
+    }
+
+    var tuner: String = path.replace(EXT, "_tuner$EXT")
+    var mixer: String = path.replace(EXT, "_mixer$EXT")
 }
 
 /**

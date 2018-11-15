@@ -5,6 +5,7 @@
         android:id="@+id/anchor_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/black"
         tools:context=".ContainerActivity">
 
     <com.ycloud.api.common.BaseVideoView
@@ -24,4 +25,37 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/icon_size_small"/>
 
+    <android.support.constraint.ConstraintLayout
+            android:id="@+id/edit_menu"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/btn_padding"
+            android:background="#8c000000"
+            tools:context=".ContainerActivity">
+
+        <android.support.v7.widget.SwitchCompat
+                android:padding="@dimen/btn_padding"
+                android:gravity="left|center_vertical"
+                style="@style/AppTheme.Button"
+                android:text="变声效果"
+                android:textColor="@android:color/white"
+                app:switchPadding="@dimen/icon_margin"
+                app:showText="false"
+                android:checked="true"
+                android:id="@+id/toggle_music"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/icon_size_small"/>
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/toggle_mixer"
+                android:padding="@dimen/btn_padding"
+                android:background="@drawable/btn_background"
+                android:layout_marginTop="@dimen/icon_margin_top"
+                app:layout_constraintTop_toBottomOf="@id/toggle_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+    </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>

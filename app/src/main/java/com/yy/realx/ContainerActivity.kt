@@ -132,6 +132,7 @@ class ContainerActivity : AppCompatActivity() {
         val video = mModel.video.value ?: return
         FileUtils.deleteFileSafely(File(video.audio.path))
         FileUtils.deleteFileSafely(File(video.audio.tuner))
+        FileUtils.deleteFileSafely(File(video.audio.mixer))
         video.segments.forEach {
             FileUtils.deleteFileSafely(File(it.path))
         }

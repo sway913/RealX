@@ -89,7 +89,7 @@
 
     <LinearLayout
             android:clipChildren="true"
-            android:layout_marginBottom="@dimen/ring_margin_bottom"
+            android:layout_marginBottom="@dimen/icon_margin_xlarge"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/toggle_record"

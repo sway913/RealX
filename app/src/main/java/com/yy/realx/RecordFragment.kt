@@ -137,6 +137,9 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@setOnClickListener
             }
+            if (isRecording) {
+                return@setOnClickListener
+            }
             mVideoRecord.switchCamera()
             if (mRecordConfig.cameraId == VideoRecordConstants.FRONT_CAMERA) {
                 mRecordConfig.cameraId = VideoRecordConstants.BACK_CAMERA
@@ -203,10 +206,13 @@ class RecordFragment : Fragment() {
             isRecording = !isRecording
         }
         //
-        btn_finish.isEnabled = false
+        btn_finish.isEnabled = mModel.video.value?.segments?.isNotEmpty() ?: false
         btn_finish.setOnClickListener {
             Log.d(TAG, "NextStage.OnClick()")
             if (!isInitialed.get()) {
+                return@setOnClickListener
+            }
+            if (isRecording) {
                 return@setOnClickListener
             }
             checkNotNull(mModel.video.value)
@@ -216,6 +222,9 @@ class RecordFragment : Fragment() {
         btn_avatar.setOnClickListener {
             Log.d(TAG, "AvatarEffect.OnClick()")
             if (!isInitialed.get()) {
+                return@setOnClickListener
+            }
+            if (isRecording) {
                 return@setOnClickListener
             }
             val effect = EffectDialogFragment()
@@ -247,6 +256,9 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@OnClickListener
             }
+            if (isRecording) {
+                return@OnClickListener
+            }
             if (!it.isSelected) {
                 speedModes.forEach { view ->
                     view.isSelected = (view == it)
@@ -272,7 +284,19 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@setOnClickListener
             }
+            if (isRecording) {
+                return@setOnClickListener
+            }
             btn_voice.text = TunerName[tuner.incrementAndGet() % TunerName.size]
+        }
+        //分段显示
+        val video = mModel.video.value
+        if (null != video) {
+            val list = mutableListOf<Int>()
+            video.segments.forEach {
+                list.add(it.duration)
+            }
+            segment_bar.setSegments(list)
         }
         /*
         mTimer.schedule(5000) {
