@@ -5,23 +5,39 @@
         android:id="@+id/anchor_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/black"
         tools:context=".ContainerActivity">
+
+    <TextView
+            android:layout_marginStart="@dimen/icon_margin_start"
+            android:layout_marginEnd="@dimen/icon_margin_end"
+            android:background="@drawable/btn_background_red"
+            android:layout_marginBottom="@dimen/icon_margin_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            style="@style/AppTheme.Button"
+            android:text="Done"
+            android:id="@+id/share_done"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/icon_size_small"/>
 
     <HorizontalScrollView
             android:scrollbars="none"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/share_done"
             android:layout_marginStart="@dimen/icon_margin_start"
             android:layout_marginEnd="@dimen/icon_margin_end"
-            android:layout_marginBottom="@dimen/icon_margin_bottom"
+            android:layout_marginBottom="@dimen/icon_margin_large"
             android:id="@+id/share_scroller"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
         <LinearLayout
                 android:orientation="horizontal"
                 android:id="@+id/share_panel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
             <TextView
                     android:layout_marginStart="@dimen/icon_margin_start"
                     style="@style/AppTheme.Button.Circle"
@@ -71,10 +87,13 @@
     </HorizontalScrollView>
 
     <com.ycloud.api.common.BaseVideoView
-            android:id="@+id/video_view"
+            android:id="@+id/share_video"
+            android:foreground="@drawable/avatar_foreground"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/share_scroller"
-            android:layout_margin="@dimen/icon_margin"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="@dimen/icon_margin_large"
             android:layout_width="match_parent"
             android:layout_height="0dip"/>
 

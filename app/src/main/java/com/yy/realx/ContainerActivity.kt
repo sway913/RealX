@@ -110,6 +110,8 @@ class ContainerActivity : AppCompatActivity() {
                 mModel.transitTo(Stage.RECORD)
             }
             Stage.SHARE -> {
+                release()
+                mModel.video.value = null
                 mModel.transitTo(Stage.RECORD)
             }
             else -> {
