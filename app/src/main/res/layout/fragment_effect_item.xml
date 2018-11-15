@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:layout_marginTop="@dimen/icon_margin_top"
+        android:layout_marginBottom="@dimen/icon_margin_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".ContainerActivity">
+
+    <com.yy.realx.widget.RImageView
+            android:id="@+id/effect_thumb"
+            app:radius="@dimen/btn_radius"
+            android:src="@mipmap/ic_menu_portrait"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="@dimen/icon_size_large"
+            android:layout_height="@dimen/icon_size_large"/>
+
+    <TextView
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:padding="@dimen/btn_padding_small"
+            android:background="#33000000"
+            android:text="Name"
+            android:id="@+id/effect_name"
+            app:layout_constraintStart_toStartOf="@id/effect_thumb"
+            app:layout_constraintEnd_toEndOf="@id/effect_thumb"
+            app:layout_constraintBottom_toBottomOf="@id/effect_thumb"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"/>
+</android.support.constraint.ConstraintLayout>

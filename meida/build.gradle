@@ -25,9 +25,6 @@ android {
     }
 
     packagingOptions {
-//        exclude 'lib/armeabi-v7a/libaudioengine.so'
-//        exclude 'lib/armeabi-v7a/libffmpeg-neon.so'
-
         pickFirst 'lib/armeabi-v7a/libaudioengine.so'
         pickFirst 'lib/armeabi-v7a/libffmpeg-neon.so'
         pickFirst 'lib/armeabi-v7a/libjpeg_jni.so'

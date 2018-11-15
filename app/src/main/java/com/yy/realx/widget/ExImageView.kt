@@ -25,7 +25,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         paint.strokeWidth = 10f
     }
 
-    val values = mutableListOf<Float>()
+    private val values = mutableListOf<Float>()
 
     /**
      * 标记点坐标信息
@@ -54,7 +54,8 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (width <= 0 || height <= 0) {
             return
         }
-        if (coordinates.isNullOrEmpty()) {
+        if (coordinates.size != values.size) {
+            coordinates.clear()
             coordinates.addAll(values)
         }
         Log.d(TAG, "parseCoordinates():${coordinates.size}")

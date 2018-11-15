@@ -31,7 +31,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/icon_size"/>
+            android:layout_height="@dimen/icon_size_small"/>
 
     <FrameLayout
             android:visibility="gone"

@@ -21,9 +21,18 @@
         <item name="android:background">@drawable/btn_background</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/btn_text_color</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.Button.Circle" parent="AppTheme.Button">
+        <item name="android:background">@drawable/btn_background_circle</item>
     </style>
 
     <declare-styleable name="RImageView">
         <attr name="radius" format="dimension|reference"/>
+    </declare-styleable>
+
+    <declare-styleable name="SegmentBar">
+        <attr name="sep_width" format="dimension|reference"/>
     </declare-styleable>
 </resources>

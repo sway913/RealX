@@ -104,7 +104,7 @@ class AvatarDialogFragment : DialogFragment() {
             }
         }
         avatar_done.isEnabled = false
-        mModel.avatar.observe(this, Observer {
+        mModel.effect.observe(this, Observer {
             Log.d(TAG, "avatar.observe():${isDetecting.get()}")
             if (isDetecting.get()) {
                 return@Observer
@@ -171,7 +171,9 @@ class AvatarDialogFragment : DialogFragment() {
         }
         activity!!.runOnUiThread {
             isDetecting.set(false)
-            mModel.avatar.value = AvatarSettings(path, values)
+            val effect = EffectSettings("face2danim", "target.png", EffectSettings.FEATURE_2D)
+            effect.avatar = AvatarSettings(path, values)
+            mModel.effect.value = effect
             avatar_image.setValues(values)
         }
     }

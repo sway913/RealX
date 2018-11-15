@@ -11,9 +11,9 @@ class RealXViewModel : ViewModel() {
     var video = MutableLiveData<VideoSettings>()
 
     /**
-     * 人脸数据
+     * 特效数据
      */
-    var avatar = MutableLiveData<AvatarSettings>()
+    var effect = MutableLiveData<EffectSettings>()
 
     /**
      * 流程配置
@@ -28,6 +28,9 @@ class RealXViewModel : ViewModel() {
     }
 }
 
+/**
+ * 视频数据
+ */
 data class VideoSettings(val path: String) {
     private val generator = AtomicInteger(0)
     val segments = mutableListOf<VideoSegment>()
@@ -69,16 +72,37 @@ data class VideoSettings(val path: String) {
     }
 }
 
+/**
+ * 视频分段信息
+ */
 data class VideoSegment(val index: Int, val path: String) {
     var tuner: String = ""
-    var res: String = ""
+    var effect: EffectSettings? = null
     var duration = 0
 }
 
+/**
+ * 音频数据
+ */
 data class AudioSettings(val path: String, val start: Int = 0) {
     var tuner: String = path.replace(".wav", "_tuner.wav")
 }
 
+/**
+ * 特效数据
+ */
+data class EffectSettings(val name: String, val thumb: String, val feature: Int = 0, var isNew: Boolean = true) {
+    companion object {
+        const val FEATURE_3D = 0
+        const val FEATURE_2D = 1
+    }
+
+    var avatar: AvatarSettings? = null
+}
+
+/**
+ * 人脸数据
+ */
 data class AvatarSettings(val path: String, val values: List<Float> = emptyList(), val auto: Boolean = true) {
     private val bytes = mutableListOf<Byte>()
     /**
@@ -97,6 +121,9 @@ data class AvatarSettings(val path: String, val values: List<Float> = emptyList(
     }
 }
 
+/**
+ * 流程数据
+ */
 enum class Stage {
     PERMISSION, RECORD, EDIT, SHARE
 }

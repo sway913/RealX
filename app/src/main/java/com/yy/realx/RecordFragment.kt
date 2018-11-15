@@ -98,6 +98,12 @@ class RecordFragment : Fragment() {
                 val info = MediaProbe.getMediaInfo(segment.path, false) ?: return@schedule
                 Log.d(TAG, "getMediaInfo():${info.duration}")
                 segment.duration = (info.duration * 1000).toInt()
+                //分段显示
+                val list = mutableListOf<Int>()
+                video.segments.forEach {
+                    list.add(it.duration)
+                }
+                segment_bar.setSegments(list)
             }
             //刷新界面
             activity!!.runOnUiThread {
@@ -142,7 +148,7 @@ class RecordFragment : Fragment() {
         var amplitude = 0
         mVideoRecord.setEnableAudioRecord(true)
         mVideoRecord.setAudioRecordListener { avgAmplitude, maxAmplitude ->
-            Log.d(TAG, "onVolume():$avgAmplitude, $maxAmplitude")
+            //            Log.d(TAG, "onVolume():$avgAmplitude, $maxAmplitude")
             synchronized(mModel) {
                 frames++
                 amplitude += avgAmplitude
@@ -164,21 +170,9 @@ class RecordFragment : Fragment() {
                     }
                 }
                 info?.rhythmSmoothRatio = loudness
-                info?.rhythmFrequencyData = mModel.avatar.value?.syncBytes() ?: ByteArray(0)
+                info?.rhythmFrequencyData = mModel.effect.value?.avatar?.syncBytes() ?: ByteArray(0)
             }
         })
-        //表示是否mute
-        toggle_mute.setOnClickListener {
-            Log.d(TAG, "MuteRecord.OnClick()")
-            if (!isInitialed.get()) {
-                return@setOnClickListener
-            }
-            val enable = mRecordConfig.audioEnable
-            mVideoRecord.setEnableAudioRecord(!enable)
-            val resId = if (enable) R.mipmap.btn_mic_mute else R.mipmap.btn_mic_not_mute
-            toggle_mute.setImageResource(resId)
-            mRecordConfig.audioEnable = !enable
-        }
         //录制一段视频
         SDKCommonCfg.disableMemoryMode()
         toggle_record.setOnClickListener {
@@ -196,11 +190,11 @@ class RecordFragment : Fragment() {
                     mModel.video.value = video
                 }
                 checkNotNull(video)
-                Log.d(TAG, "startRecord():path = ${video.path}")
+                Log.d(TAG, "startRecord():name = ${video.path}")
                 val segment = video.segmentAt(-1)
                 checkNotNull(segment)
                 segment.tuner = TunerMode[tuner.get() % TunerMode.size]
-                segment.res = mModel.avatar.value?.path ?: ""
+                segment.effect = mModel.effect.value
                 Log.d(TAG, "startRecord():segment = ${segment.path}")
                 mVideoRecord.setOutputPath(segment.path)
                 mVideoRecord.setRecordListener(mRecordListener)
@@ -224,12 +218,29 @@ class RecordFragment : Fragment() {
             if (!isInitialed.get()) {
                 return@setOnClickListener
             }
-            //先去选择图片
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            startActivityForResult(intent, REQUEST_AVATAR)
+            val effect = EffectDialogFragment()
+            effect.showNow(childFragmentManager, EffectDialogFragment::class.java.simpleName)
+            effect.dialog.setOnDismissListener {
+                Log.d(TAG, "Effect.dismiss()")
+                val effect = mModel.effect.value ?: return@setOnDismissListener
+                if (!effect.isNew) {
+                    return@setOnDismissListener
+                }
+                //设置effect已经应用
+                effect.isNew = false
+                //执行分支代码
+                when (effect.feature) {
+                    //先去选择图片
+                    EffectSettings.FEATURE_2D -> {
+                        apply2dAvatar(effect)
+                    }
+                    else -> {
+                        applyEffect(effect)
+                    }
+                }
+            }
         }
-        //
+        //速度选择
         val speedModes = arrayOf(speed_mode_0, speed_mode_1, speed_mode_2, speed_mode_3, speed_mode_4)
         val listener = View.OnClickListener {
             Log.d(TAG, "SpeedModes.OnClick():$it")
@@ -277,77 +288,33 @@ class RecordFragment : Fragment() {
     private var effect = FilterIDManager.NO_ID
 
     /**
-     * 添加特效文件
+     * 设置effect
      */
-    private fun applyAvatar(name: String, path: String) {
+    private fun applyEffect(effect: EffectSettings?) {
+        if (null == effect) {
+            return
+        }
+        val wrapper = mVideoRecord.recordFilterSessionWrapper ?: return
+        if (this.effect != FilterIDManager.NO_ID) {
+            wrapper.removeFilter(this.effect)
+            this.effect = FilterIDManager.NO_ID
+        }
+        //纯粹清除特效
+        if (effect.name.isBlank()) {
+            mModel.effect.value = null
+            return
+        }
+        val name = effect.name
         val dir = File(context!!.filesDir, name)
         val avatar = File(dir, "effect0.ofeffect")
         if (!avatar.exists()) {
             extractFromAssets(name)
         }
-        FileUtils.copyFile(path, File(dir, "target.png").absolutePath)
-        val wrapper = mVideoRecord.recordFilterSessionWrapper ?: return
-        if (effect != FilterIDManager.NO_ID) {
-            wrapper.removeFilter(effect)
-            effect = FilterIDManager.NO_ID
-        }
-        effect = wrapper.addFilter(FilterType.GPUFILTER_EFFECT, FilterGroupType.DEFAULT_FILTER_GROUP)
+        this.effect = wrapper.addFilter(FilterType.GPUFILTER_EFFECT, FilterGroupType.DEFAULT_FILTER_GROUP)
         val config = hashMapOf<Int, Any>(
             FilterOPType.OP_SET_EFFECT_PATH to avatar.absolutePath
         )
-        wrapper.updateFilterConf(effect, config)
-        //初始化图片显示
-        btn_avatar.setImageURI(Uri.fromFile(File(path)))
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "onActivityResult():$resultCode")
-        if (resultCode != Activity.RESULT_OK) {
-            return
-        }
-        when (requestCode) {
-            REQUEST_AVATAR -> {
-                val uri = data?.data ?: return
-                val path = data?.getStringExtra("path")
-                Log.d(TAG, "onActivityResult():$uri, $path")
-                mTimer.schedule(0) {
-                    prepareAvatar(uri)
-                }
-            }
-            else -> {
-                Log.d(TAG, "onActivityResult():$requestCode")
-            }
-        }
-    }
-
-    /**
-     * 人脸检测
-     */
-    private fun prepareAvatar(uri: Uri) {
-        val projections = arrayOf(MediaStore.Video.Media.DATA)
-        val cursor = context!!.contentResolver.query(uri, projections, null, null, null)
-        checkNotNull(cursor)
-        var path = ""
-        if (cursor.moveToFirst()) {
-            path = cursor.getString(cursor.getColumnIndexOrThrow(projections[0]))
-        }
-        cursor.close()
-        Log.d(TAG, "prepareAvatar():$path")
-        if (path.isBlank()) {
-            return
-        }
-        //拷贝一份文件替换特效
-        activity!!.runOnUiThread {
-            val avatar = AvatarDialogFragment.newInstance(path)
-            avatar.showNow(childFragmentManager, AvatarDialogFragment::class.java.simpleName)
-            avatar.dialog.setOnDismissListener {
-                Log.d(TAG, "OnDismissListener.onDismiss():$path")
-                btn_avatar.setImageURI(Uri.fromFile(File(path)))
-                //创建effect
-                applyAvatar("face2danim", path)
-            }
-        }
+        wrapper.updateFilterConf(this.effect, config)
     }
 
     /**
@@ -385,6 +352,83 @@ class RecordFragment : Fragment() {
             entry = input.nextEntry
         }
         input.close()
+    }
+
+    /**
+     * 请求获取图片资源
+     */
+    private fun apply2dAvatar(effect: EffectSettings?) {
+        Log.d(TAG, "apply2dAvatar():${effect?.name}")
+        mTimer.schedule(10) {
+            val intent = Intent(Intent.ACTION_PICK)
+            intent.data = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            startActivityForResult(intent, REQUEST_AVATAR)
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "onActivityResult():$resultCode")
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+        when (requestCode) {
+            REQUEST_AVATAR -> {
+                val uri = data?.data ?: return
+                val path = data?.getStringExtra("name")
+                Log.d(TAG, "onActivityResult():$uri, $path")
+                mTimer.schedule(0) {
+                    prepareAvatar(uri)
+                }
+            }
+            else -> {
+                Log.d(TAG, "onActivityResult():$requestCode")
+            }
+        }
+    }
+
+    /**
+     * 人脸检测
+     */
+    private fun prepareAvatar(uri: Uri) {
+        val projections = arrayOf(MediaStore.Video.Media.DATA)
+        val cursor = context!!.contentResolver.query(uri, projections, null, null, null)
+        checkNotNull(cursor)
+        var path = ""
+        if (cursor.moveToFirst()) {
+            path = cursor.getString(cursor.getColumnIndexOrThrow(projections[0]))
+        }
+        cursor.close()
+        Log.d(TAG, "prepareAvatar():$path")
+        if (path.isBlank()) {
+            return
+        }
+        //拷贝一份文件替换特效
+        activity!!.runOnUiThread {
+            val avatar = AvatarDialogFragment.newInstance(path)
+            avatar.showNow(childFragmentManager, AvatarDialogFragment::class.java.simpleName)
+            avatar.dialog.setOnDismissListener {
+                Log.d(TAG, "OnDismissListener.onDismiss():$path")
+                btn_avatar.setImageURI(Uri.fromFile(File(path)))
+                //创建effect
+                applyAvatar(mModel.effect.value, path)
+            }
+        }
+    }
+
+    /**
+     * 添加特效文件
+     */
+    private fun applyAvatar(effect: EffectSettings?, path: String) {
+        if (null == effect) {
+            return
+        }
+        val dir = File(context!!.filesDir, effect.name)
+        FileUtils.copyFile(path, File(dir, "target.png").absolutePath)
+        btn_avatar.setImageURI(Uri.fromFile(File(path)))
+        //标识初始化
+        effect.isNew = false
+        applyEffect(effect)
     }
 
     private val mTimer: Timer by lazy {

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools" xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/anchor_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ContainerActivity">
+
+    <HorizontalScrollView
+            android:scrollbars="none"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="@dimen/icon_margin_start"
+            android:layout_marginEnd="@dimen/icon_margin_end"
+            android:layout_marginBottom="@dimen/icon_margin_bottom"
+            android:id="@+id/share_scroller"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/share_panel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_marginStart="@dimen/icon_margin_start"
+                    style="@style/AppTheme.Button.Circle"
+                    android:minWidth="@dimen/icon_size"
+                    android:text="WeChat"
+                    android:id="@+id/share_wechat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/icon_size"/>
+
+            <TextView
+                    android:layout_marginStart="@dimen/icon_margin_start"
+                    style="@style/AppTheme.Button.Circle"
+                    android:minWidth="@dimen/icon_size"
+                    android:text="Friends"
+                    android:id="@+id/share_timeline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/icon_size"/>
+
+            <TextView
+                    android:layout_marginStart="@dimen/icon_margin_start"
+                    style="@style/AppTheme.Button.Circle"
+                    android:minWidth="@dimen/icon_size"
+                    android:text="Sina"
+                    android:id="@+id/share_weibo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/icon_size"/>
+
+            <TextView
+                    android:layout_marginStart="@dimen/icon_margin_start"
+                    style="@style/AppTheme.Button.Circle"
+                    android:minWidth="@dimen/icon_size"
+                    android:text="QQ"
+                    android:id="@+id/share_qq"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/icon_size"/>
+
+            <TextView
+                    android:layout_marginStart="@dimen/icon_margin_start"
+                    android:layout_marginEnd="@dimen/icon_margin_end"
+                    style="@style/AppTheme.Button.Circle"
+                    android:minWidth="@dimen/icon_size"
+                    android:text="Zone"
+                    android:id="@+id/share_zone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/icon_size"/>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <com.ycloud.api.common.BaseVideoView
+            android:id="@+id/video_view"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/share_scroller"
+            android:layout_margin="@dimen/icon_margin"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"/>
+
+</android.support.constraint.ConstraintLayout>

@@ -14,6 +14,7 @@
 
     <TextView
             style="@style/AppTheme.Button"
+            android:enabled="false"
             android:text="Next"
             android:minWidth="@dimen/icon_size"
             android:layout_marginEnd="@dimen/icon_margin_end"
@@ -22,7 +23,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:id="@+id/btn_finish"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/icon_size"/>
+            android:layout_height="@dimen/icon_size_small"/>
 
     <TextView
             style="@style/AppTheme.Button"
@@ -33,21 +34,9 @@
             android:layout_marginTop="@dimen/icon_margin_top"
             android:id="@+id/toggle_camera"
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size_small"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
-
-    <ImageButton
-            android:visibility="gone"
-            android:scaleType="centerCrop"
-            android:layout_marginTop="@dimen/icon_margin_top"
-            android:id="@+id/toggle_mute"
-            android:tint="@android:color/black"
-            android:layout_width="@dimen/icon_size"
-            android:layout_height="@dimen/icon_size"
-            app:layout_constraintStart_toEndOf="@id/toggle_camera"
-            app:layout_constraintTop_toTopOf="parent"
-            android:src="@mipmap/btn_mic_not_mute"/>
 
     <ImageButton
             android:layout_marginBottom="@dimen/ring_margin_bottom"
@@ -83,6 +72,7 @@
             app:radius="@dimen/btn_radius"
             android:id="@+id/btn_avatar"
             android:scaleType="centerCrop"
+            android:src="@mipmap/ic_menu_portrait"
             android:layout_width="@dimen/icon_size"
             android:layout_height="@dimen/icon_size"/>
 
@@ -107,45 +97,56 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
         <TextView
+                android:textStyle="bold"
                 android:textColor="@color/toggle_text_color"
                 android:background="@drawable/toggle_background_start"
                 android:text="0.2X"
                 android:gravity="center"
                 android:id="@+id/speed_mode_0"
                 android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/toggle_size"/>
+                android:layout_height="@dimen/icon_size_half"/>
         <TextView
+                android:textStyle="bold"
                 android:textColor="@color/toggle_text_color"
                 android:background="@drawable/toggle_background"
                 android:text="0.5X"
                 android:gravity="center"
                 android:id="@+id/speed_mode_1"
                 android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/toggle_size"/>
+                android:layout_height="@dimen/icon_size_half"/>
         <TextView
+                android:textStyle="bold"
                 android:textColor="@color/toggle_text_color"
                 android:background="@drawable/toggle_background"
                 android:text="1.0X"
                 android:gravity="center"
                 android:id="@+id/speed_mode_2"
                 android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/toggle_size"/>
+                android:layout_height="@dimen/icon_size_half"/>
         <TextView
+                android:textStyle="bold"
                 android:textColor="@color/toggle_text_color"
                 android:background="@drawable/toggle_background"
                 android:text="2.0X"
                 android:gravity="center"
                 android:id="@+id/speed_mode_3"
                 android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/toggle_size"/>
+                android:layout_height="@dimen/icon_size_half"/>
         <TextView
+                android:textStyle="bold"
                 android:textColor="@color/toggle_text_color"
                 android:background="@drawable/toggle_background_end"
                 android:text="4.0X"
                 android:gravity="center"
                 android:id="@+id/speed_mode_4"
                 android:layout_width="@dimen/icon_size"
-                android:layout_height="@dimen/toggle_size"/>
+                android:layout_height="@dimen/icon_size_half"/>
     </LinearLayout>
+
+    <com.yy.realx.widget.SegmentBar
+            android:id="@+id/segment_bar"
+            android:layout_width="match_parent"
+            app:sep_width="3dp"
+            android:layout_height="6dp"/>
 
 </android.support.constraint.ConstraintLayout>

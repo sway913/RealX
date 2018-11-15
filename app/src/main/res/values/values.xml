@@ -4,14 +4,20 @@
     <dimen name="ring_inset">10dp</dimen>
     <dimen name="ring_size">96dp</dimen>
     <dimen name="ring_margin_bottom">8dp</dimen>
+    <dimen name="icon_size_large">80dp</dimen>
     <dimen name="icon_size">64dp</dimen>
-    <dimen name="toggle_size">32dp</dimen>
+    <dimen name="icon_size_small">48dp</dimen>
+    <dimen name="icon_size_half">32dp</dimen>
+    <dimen name="icon_margin">8dp</dimen>
     <dimen name="icon_margin_top">8dp</dimen>
     <dimen name="icon_margin_bottom">8dp</dimen>
     <dimen name="icon_margin_end">8dp</dimen>
     <dimen name="icon_margin_start">8dp</dimen>
     <dimen name="btn_radius">8dp</dimen>
+    <dimen name="btn_padding_large">16dp</dimen>
+    <dimen name="btn_padding">8dp</dimen>
     <dimen name="btn_padding_start">8dp</dimen>
     <dimen name="btn_padding_end">8dp</dimen>
+    <dimen name="btn_padding_small">4dp</dimen>
     <dimen name="btn_bolder_width">2dp</dimen>
 </resources>
