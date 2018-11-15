@@ -289,6 +289,15 @@ class RecordFragment : Fragment() {
             }
             btn_voice.text = TunerName[tuner.incrementAndGet() % TunerName.size]
         }
+        //分段显示
+        val video = mModel.video.value
+        if (null != video) {
+            val list = mutableListOf<Int>()
+            video.segments.forEach {
+                list.add(it.duration)
+            }
+            segment_bar.setSegments(list)
+        }
         /*
         mTimer.schedule(5000) {
             val seq = SequenceSimulate(activity)
