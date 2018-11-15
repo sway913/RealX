@@ -249,8 +249,12 @@ class EditFragment : Fragment() {
         dialog.setCanceledOnTouchOutside(false)
         dialog.setOnKeyListener { dialog, keyCode, event -> true }
         val filter = VideoFilter(context)
-        filter.exportBgm = audio.tuner ?: audio.path
-        filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f, audio.start)
+        if (File(audio.mixer).exists()) {
+            filter.exportBgm = audio.mixer
+        } else {
+            filter.exportBgm = audio.tuner
+        }
+        filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f)
         val export = VideoExport(context, video.path, out, filter)
         export.setMediaListener(object : IMediaListener {
             override fun onProgress(progress: Float) {

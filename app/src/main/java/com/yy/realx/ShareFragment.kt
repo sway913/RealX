@@ -1,6 +1,7 @@
 package com.yy.realx
 
 import android.arch.lifecycle.ViewModelProviders
+import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.util.Log
@@ -15,6 +16,7 @@ import cn.jiguang.share.wechat.Wechat
 import com.ycloud.player.widget.MediaPlayerListener
 import com.ycloud.svplayer.SvVideoViewInternal
 import kotlinx.android.synthetic.main.fragment_share.*
+import java.io.File
 import java.util.*
 
 
@@ -78,7 +80,7 @@ class ShareFragment : Fragment() {
             params.title = "Real X"
             params.text = "Wonderful Video Produce Here."
             params.shareType = Platform.SHARE_VIDEO
-            params.url = ""
+            params.url = Uri.fromFile(File(video.path)).toString()
             params.imagePath = ""
             JShareInterface.share(Wechat.Name, params, object : PlatActionListener {
                 override fun onComplete(platform: Platform?, p1: Int, data: HashMap<String, Any>?) {
@@ -89,8 +91,8 @@ class ShareFragment : Fragment() {
                     Log.d(TAG, "onComplete():${platform?.name}, $p1")
                 }
 
-                override fun onError(platform: Platform?, p1: Int, p2: Int, error: Throwable?) {
-                    Log.d(TAG, "onComplete():${platform?.name}, $p1, $p2, $error")
+                override fun onError(platform: Platform?, p1: Int, code: Int, error: Throwable?) {
+                    Log.d(TAG, "onComplete():${platform?.name}, $p1, $code, ${error?.message}")
                 }
             })
         }
