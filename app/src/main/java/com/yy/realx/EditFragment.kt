@@ -45,6 +45,7 @@ class EditFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        music = VideoFilter(context)
         prepareEditView()
     }
 
@@ -93,18 +94,19 @@ class EditFragment : Fragment() {
         mViewInternal.setVideoPath(path)
         val audio = video.audio
         Log.d(TAG, "AudioPath():${audio.path}")
-        val music = VideoFilter(context)
-        music.setBackgroundMusic(audio.path, 0.0f, 1.0f, audio.start)
+        music.setBackgroundMusic(audio.path, 0.0f, 1.0f)
         mViewInternal.setVFilters(music)
         //功能
         export_video.setOnClickListener {
             exportVideoWithParams(video)
         }
         tunerWithModes(video)
+        //原声切换
         toggle_music.setOnCheckedChangeListener { view, isChecked ->
             Log.d(TAG, "Toggle.OnCheckedChangeListener():$isChecked")
             switchVolume(isChecked, audio)
         }
+        //混声切换
         toggle_mixer.layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         val adapter = MixerAdapter(context!!)
         adapter.setOnItemClickListener {
@@ -140,6 +142,7 @@ class EditFragment : Fragment() {
             if (mixer.limiterEnable) {
                 mEngine.SetLimiterParam(mixer.limiter)
             }
+            mEngine.SetVoiceVolume(100)
             mEngine.SetKaraokeFileMixerNotify(object : IKaraokeFileMixerNotity {
                 override fun OnFileMixerState(progress: Long, total: Long) {
                     val percent = Math.min(progress * 100 / total, 99)
@@ -163,10 +166,8 @@ class EditFragment : Fragment() {
      * 使用音效
      */
     private fun updateMixerByNow(audio: AudioSettings) {
-        if (null == music) {
-            music = VideoFilter(context)
-        }
-        music!!.setBackgroundMusic(audio.mixer, 0.0f, 1.0f, audio.start)
+        Log.d(TAG, "updateMixerByNow():${audio.mixer}")
+        music.setBackgroundMusic(audio.mixer, 0.0f, 1.0f)
         mViewInternal.setVFilters(music)
         seekTo(0)
     }
@@ -176,13 +177,10 @@ class EditFragment : Fragment() {
      */
     private fun switchVolume(checked: Boolean, audio: AudioSettings) {
         Log.d(TAG, "switchVolume():$checked")
-        if (null == music) {
-            music = VideoFilter(context)
-        }
         if (checked) {
-            music!!.setBackgroundMusic(audio.tuner, 0.0f, 1.0f, audio.start)
+            music.setBackgroundMusic(audio.tuner, 0.0f, 1.0f)
         } else {
-            music!!.setBackgroundMusic(null, 1.0f, 0.0f)
+            music.setBackgroundMusic(null, 1.0f, 0.0f)
         }
         mViewInternal.setVFilters(music)
         seekTo(0)
@@ -245,7 +243,7 @@ class EditFragment : Fragment() {
         dialog.setOnKeyListener { dialog, keyCode, event -> true }
         val filter = VideoFilter(context)
         filter.exportBgm = audio.tuner ?: audio.path
-        filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f, audio.start)
+        filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f)
         val export = VideoExport(context, video.path, out, filter)
         export.setMediaListener(object : IMediaListener {
             override fun onProgress(progress: Float) {
@@ -279,17 +277,14 @@ class EditFragment : Fragment() {
         }
     }
 
-    var music: VideoFilter? = null
+    private lateinit var music: VideoFilter
 
     /**
      * 变更背景音乐
      */
     private fun updateTunerByNow(audio: AudioSettings) {
-        if (null == music) {
-            music = VideoFilter(context)
-        }
         val path = audio.tuner
-        music!!.setBackgroundMusic(path, 0.0f, 1.0f, audio.start)
+        music.setBackgroundMusic(path, 0.0f, 1.0f)
         mViewInternal.setVFilters(music)
         //重新开始
         seekTo(0)
