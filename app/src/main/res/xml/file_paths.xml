@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resource>
+    <external-path name="media" path="Movies/"/>
+</resource>

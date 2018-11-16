@@ -97,6 +97,9 @@ class EditFragment : Fragment() {
         Log.d(TAG, "AudioPath():${audio.path}")
         music.setBackgroundMusic(audio.path, 0.0f, 1.0f)
         mViewInternal.setVFilters(music)
+        edit_back.setOnClickListener {
+            activity!!.onBackPressed()
+        }
         //功能
         export_video.setOnClickListener {
             exportVideoWithParams(video)

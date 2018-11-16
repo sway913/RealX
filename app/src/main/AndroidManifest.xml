@@ -53,6 +53,13 @@
             </intent-filter>
         </activity>
 
+        <provider android:authorities="com.yy.realx.fileprovider"
+                  android:name="android.support.v4.content.FileProvider"
+                  android:exported="false"
+                  android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/>
+        </provider>
+
         <!-- Required SDK核心功能-->
         <activity
                 android:name="cn.jiguang.share.android.ui.JiguangShellActivity"

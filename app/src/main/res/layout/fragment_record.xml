@@ -27,12 +27,12 @@
 
     <TextView
             style="@style/AppTheme.Button"
-            android:text="Switch"
+            android:text="Clear"
             android:minWidth="@dimen/icon_size"
             android:layout_marginStart="@dimen/icon_margin_start"
             android:scaleType="centerCrop"
             android:layout_marginTop="@dimen/icon_margin_top"
-            android:id="@+id/toggle_camera"
+            android:id="@+id/clear_video"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/icon_size_small"
             app:layout_constraintTop_toTopOf="parent"

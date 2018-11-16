@@ -44,14 +44,10 @@ class RecordFragment : Fragment() {
     companion object {
         private var TAG = RecordFragment::class.java.simpleName
         private val TunerMode = arrayOf(
-            "VeoNone", "VeoEthereal", "VeoThriller", "VeoLuBan", "VeoLorie",
-            "VeoUncle", "VeoDieFat", "VeoBadBoy", "VeoWarCraft", "VeoHeavyMetal",
-            "VeoCold", "VeoHeavyMechinery", "VeoTrappedBeast", "VeoPowerCurrent"
+            "VeoNone", "VeoLuBan", "VeoLorie", "VeoUncle", "VeoWarCraft"
         )
         private val TunerName = arrayOf(
-            "原声", "空灵", "惊悚", "鲁班", "萝莉",
-            "大叔", "死肥仔", "熊孩子", "魔兽农民", "重金属",
-            "感冒", "重机械", "困兽", "强电流"
+            "原声", "鲁班", "萝莉", "大叔", "魔兽"
         )
         private val SpeedMode = arrayOf(
             0.2f, 0.5f, 1.0f, 2.0f, 4.0f
@@ -121,6 +117,7 @@ class RecordFragment : Fragment() {
     private val isInitialed = AtomicBoolean(false)
     private val tuner = AtomicInteger(0)
 
+    private var first: Long = 0
     /**
      * 授权成功后回调
      */
@@ -131,21 +128,37 @@ class RecordFragment : Fragment() {
             Log.d(TAG, "onPreviewStart()")
             isInitialed.set(true)
         }
-        //事件绑定
-        toggle_camera.setOnClickListener {
-            Log.d(TAG, "SwitchCamera.OnClick()")
+        video_view.setOnClickListener {
+            Log.d(TAG, "VideoView.OnClick():$first")
             if (!isInitialed.get()) {
                 return@setOnClickListener
             }
             if (isRecording) {
                 return@setOnClickListener
             }
-            mVideoRecord.switchCamera()
-            if (mRecordConfig.cameraId == VideoRecordConstants.FRONT_CAMERA) {
-                mRecordConfig.cameraId = VideoRecordConstants.BACK_CAMERA
+            val second = System.currentTimeMillis()
+            if ((second - first) > 500) {
+                first = second
             } else {
-                mRecordConfig.cameraId = VideoRecordConstants.FRONT_CAMERA
+                switchCamera()
             }
+        }
+        //事件绑定
+        clear_video.setOnClickListener {
+            Log.d(TAG, "ClearVideo.OnClick()")
+            if (!isInitialed.get()) {
+                return@setOnClickListener
+            }
+            if (isRecording) {
+                return@setOnClickListener
+            }
+            mModel.video.value = null
+            mModel.effect.value = null
+            btn_finish.isEnabled = false
+            speed_mode_2.performClick()
+            btn_voice.text = TunerName[0]
+            segment_bar.setSegments(emptyList())
+            applyEffect(EffectSettings("", "", EffectSettings.FEATURE_3D))
         }
         var frames = 0
         var amplitude = 0
@@ -307,6 +320,25 @@ class RecordFragment : Fragment() {
             seq.simulate()
         }
         */
+    }
+
+    /**
+     * 切换摄像头
+     */
+    private fun switchCamera() {
+        Log.d(TAG, "SwitchCamera.OnClick()")
+        if (!isInitialed.get()) {
+            return
+        }
+        if (isRecording) {
+            return
+        }
+        mVideoRecord.switchCamera()
+        if (mRecordConfig.cameraId == VideoRecordConstants.FRONT_CAMERA) {
+            mRecordConfig.cameraId = VideoRecordConstants.BACK_CAMERA
+        } else {
+            mRecordConfig.cameraId = VideoRecordConstants.FRONT_CAMERA
+        }
     }
 
     private var effect = FilterIDManager.NO_ID

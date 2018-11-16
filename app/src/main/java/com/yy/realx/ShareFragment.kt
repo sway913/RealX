@@ -1,28 +1,32 @@
 package com.yy.realx
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.FileProvider
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import cn.jiguang.share.android.api.JShareInterface
-import cn.jiguang.share.android.api.PlatActionListener
-import cn.jiguang.share.android.api.Platform
-import cn.jiguang.share.android.api.ShareParams
 import cn.jiguang.share.wechat.Wechat
 import com.ycloud.player.widget.MediaPlayerListener
 import com.ycloud.svplayer.SvVideoViewInternal
 import kotlinx.android.synthetic.main.fragment_share.*
 import java.io.File
-import java.util.*
 
 
 class ShareFragment : Fragment() {
     companion object {
         private val TAG = ShareFragment::class.java.simpleName
+        private val PACKAGES = arrayOf(
+            "com.tencent.mm", "com.tencent.mobileqq", "com.sina.weibo", "com.facebook.katana"
+        )
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -40,6 +44,7 @@ class ShareFragment : Fragment() {
 
     private lateinit var mViewInternal: SvVideoViewInternal
 
+    @SuppressLint("ShowToast")
     private fun prepareShareView() {
         Log.d(TAG, "prepareShareView()")
         if (share_video.videoViewInternal !is SvVideoViewInternal) {
@@ -72,30 +77,63 @@ class ShareFragment : Fragment() {
         share_done.setOnClickListener {
             activity!!.onBackPressed()
         }
+        val pkg = context!!.packageName
+        val uri = FileProvider.getUriForFile(context!!, "${pkg}.fileprovider", File(path))
+        Log.d(TAG, "ShareUri():$uri")
         share_wechat.setOnClickListener {
             if (!JShareInterface.isClientValid(Wechat.Name)) {
                 return@setOnClickListener
             }
-            val params = ShareParams()
-            params.title = "Real X"
-            params.text = "Wonderful Video Produce Here."
-            params.shareType = Platform.SHARE_VIDEO
-            params.url = Uri.fromFile(File(video.path)).toString()
-            params.imagePath = ""
-            JShareInterface.share(Wechat.Name, params, object : PlatActionListener {
-                override fun onComplete(platform: Platform?, p1: Int, data: HashMap<String, Any>?) {
-                    Log.d(TAG, "onComplete():${platform?.name}, $p1")
-                }
-
-                override fun onCancel(platform: Platform?, p1: Int) {
-                    Log.d(TAG, "onComplete():${platform?.name}, $p1")
-                }
-
-                override fun onError(platform: Platform?, p1: Int, code: Int, error: Throwable?) {
-                    Log.d(TAG, "onComplete():${platform?.name}, $p1, $code, ${error?.message}")
-                }
-            })
+            if (!shareBy("com.tencent.mm", uri)) {
+                Toast.makeText(context, "请先安装腾讯微信", Toast.LENGTH_SHORT).show()
+            }
         }
+        share_qq.setOnClickListener {
+            if (!JShareInterface.isClientValid(Wechat.Name)) {
+                return@setOnClickListener
+            }
+            if (!shareBy("com.tencent.mobileqq", uri)) {
+                Toast.makeText(context, "请先安装手机qq", Toast.LENGTH_SHORT).show()
+            }
+        }
+        share_weibo.setOnClickListener {
+            if (!JShareInterface.isClientValid(Wechat.Name)) {
+                return@setOnClickListener
+            }
+            if (!shareBy("com.sina.weibo", uri)) {
+                Toast.makeText(context, "请先安装新浪微博", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    /**
+     * 通过系统分享
+     */
+    private fun shareBy(pkg: String, uri: Uri): Boolean {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.setDataAndType(uri, "video/*")
+        intent.setPackage(pkg)
+        val resolvers = context?.packageManager?.queryIntentActivities(
+            intent,
+            PackageManager.MATCH_DEFAULT_ONLY
+        )
+        if (null == resolvers || resolvers.isEmpty()) {
+            return false
+        }
+        val filters = resolvers.filter {
+            Log.d(TAG, "filter():${it.activityInfo.packageName}")
+            PACKAGES.contains(it.activityInfo.packageName) && (it.activityInfo.name != null)
+        }
+        if (filters.isEmpty()) {
+            return false
+        }
+        Log.d(TAG, "${filters[0].activityInfo.name}@${filters[0].activityInfo.packageName}")
+        if (filters.size > 1) {
+            startActivity(Intent.createChooser(intent, "请选择分享方式"))
+        } else {
+            startActivity(intent)
+        }
+        return true
     }
 
     /**

@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content">
 
             <TextView
-                    android:layout_marginStart="@dimen/icon_margin_start"
+                    android:layout_marginStart="@dimen/icon_margin_xlarge"
                     style="@style/AppTheme.Button.Circle"
                     android:minWidth="@dimen/icon_size"
                     android:text="WeChat"
@@ -48,16 +48,7 @@
                     android:layout_height="@dimen/icon_size"/>
 
             <TextView
-                    android:layout_marginStart="@dimen/icon_margin_start"
-                    style="@style/AppTheme.Button.Circle"
-                    android:minWidth="@dimen/icon_size"
-                    android:text="Friends"
-                    android:id="@+id/share_timeline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/icon_size"/>
-
-            <TextView
-                    android:layout_marginStart="@dimen/icon_margin_start"
+                    android:layout_marginStart="@dimen/icon_margin_xlarge"
                     style="@style/AppTheme.Button.Circle"
                     android:minWidth="@dimen/icon_size"
                     android:text="Sina"
@@ -66,7 +57,8 @@
                     android:layout_height="@dimen/icon_size"/>
 
             <TextView
-                    android:layout_marginStart="@dimen/icon_margin_start"
+                    android:layout_marginStart="@dimen/icon_margin_xlarge"
+                    android:layout_marginEnd="@dimen/icon_margin_xlarge"
                     style="@style/AppTheme.Button.Circle"
                     android:minWidth="@dimen/icon_size"
                     android:text="QQ"
@@ -74,15 +66,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/icon_size"/>
 
-            <TextView
-                    android:layout_marginStart="@dimen/icon_margin_start"
-                    android:layout_marginEnd="@dimen/icon_margin_end"
-                    style="@style/AppTheme.Button.Circle"
-                    android:minWidth="@dimen/icon_size"
-                    android:text="Zone"
-                    android:id="@+id/share_zone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="@dimen/icon_size"/>
         </LinearLayout>
     </HorizontalScrollView>
 

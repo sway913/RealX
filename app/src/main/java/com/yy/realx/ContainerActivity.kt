@@ -1,11 +1,13 @@
 package com.yy.realx
 
 import android.Manifest
+import android.app.Service
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -17,6 +19,8 @@ class ContainerActivity : AppCompatActivity() {
         private var TAG = ContainerActivity::class.java.simpleName
         private const val PERMISSION_CODE = 0x00001
     }
+
+    private lateinit var wakeLock: PowerManager.WakeLock
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,8 @@ class ContainerActivity : AppCompatActivity() {
         } else {
             onPermissionGranted()
         }
+        val manager = getSystemService(Service.POWER_SERVICE) as PowerManager
+        wakeLock = manager.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "${TAG}_Lock")
     }
 
     private val mModel: RealXViewModel by lazy {
@@ -118,6 +124,16 @@ class ContainerActivity : AppCompatActivity() {
                 super.onBackPressed()
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        wakeLock.acquire()
+    }
+
+    override fun onPause() {
+        wakeLock.release()
+        super.onPause()
     }
 
     override fun onDestroy() {
