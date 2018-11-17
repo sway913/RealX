@@ -2,7 +2,6 @@ package com.ycloud.api.videorecord;
 
 import android.graphics.Rect;
 import android.hardware.Camera;
-
 import com.ycloud.api.config.AspectRatioType;
 import com.ycloud.api.config.TakePictureConfig;
 import com.ycloud.api.config.TakePictureParam;
@@ -68,6 +67,9 @@ public interface IVideoRecord {
      * 结束录制
      */
     void stopRecord();
+
+
+    void stopRecordAsync();
 
     /**
      * 业务层通知sdk删除了上一段录制，sdk更新保存的截图delta

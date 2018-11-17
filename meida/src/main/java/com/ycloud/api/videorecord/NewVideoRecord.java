@@ -235,6 +235,11 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
     }
 
     @Override
+    public void stopRecordAsync() {
+        pauseRecord();
+    }
+
+    @Override
     public void setCameraID(int Id){
         mVideoRecord.setCameraID(Id);
     }

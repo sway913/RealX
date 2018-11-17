@@ -207,7 +207,7 @@ class RecordFragment : Fragment() {
                 return@setOnClickListener
             }
             if (isRecording) {
-                mVideoRecord.stopRecord()
+                mVideoRecord.stopRecordAsync()
             } else {
                 var video = mModel.video.value
                 if (null == video) {

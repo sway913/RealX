@@ -12,25 +12,10 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
-
 import com.ycloud.VideoProcessTracer;
 import com.ycloud.api.common.SDKCommonCfg;
-import com.ycloud.api.config.AspectRatioType;
-import com.ycloud.api.config.RecordContants;
-import com.ycloud.api.config.RecordDynamicParam;
-import com.ycloud.api.config.ResolutionType;
-import com.ycloud.api.config.TakePictureConfig;
-import com.ycloud.api.config.TakePictureParam;
-import com.ycloud.api.videorecord.IAudioRecordListener;
-import com.ycloud.api.videorecord.ICameraPreviewCallbackListener;
-import com.ycloud.api.videorecord.IChangeAspectRatioListener;
-import com.ycloud.api.videorecord.IMediaInfoRequireListener;
-import com.ycloud.api.videorecord.IOriginalPreviewSnapshotListener;
-import com.ycloud.api.videorecord.IPreviewSnapshotListener;
-import com.ycloud.api.videorecord.IVideoPreviewListener;
-import com.ycloud.api.videorecord.IVideoRecordListener;
-import com.ycloud.api.videorecord.MediaRecordErrorListener;
-import com.ycloud.api.videorecord.VideoSurfaceView;
+import com.ycloud.api.config.*;
+import com.ycloud.api.videorecord.*;
 import com.ycloud.audio.AudioPlayEditor;
 import com.ycloud.camera.utils.ICameraEventListener;
 import com.ycloud.camera.utils.YMRCameraInfo;
@@ -50,24 +35,7 @@ import com.ycloud.mediacodec.MeidacodecConfig;
 import com.ycloud.mediacodec.VideoEncoderConfig;
 import com.ycloud.mediacodec.VideoEncoderType;
 import com.ycloud.mediacodec.videocodec.HardSurfaceEncoder;
-import com.ycloud.mediafilters.AVSyncFilter;
-import com.ycloud.mediafilters.AudioCaptureFilter;
-import com.ycloud.mediafilters.AudioDataManagerFilter;
-import com.ycloud.mediafilters.AudioEncoderFilter;
-import com.ycloud.mediafilters.AudioFilterContext;
-import com.ycloud.mediafilters.AudioProcessFilter;
-import com.ycloud.mediafilters.AudioSpeedFilter;
-import com.ycloud.mediafilters.CameraCaptureFilter;
-import com.ycloud.mediafilters.ClipFilter;
-import com.ycloud.mediafilters.IMediaSession;
-import com.ycloud.mediafilters.MediaFilterContext;
-import com.ycloud.mediafilters.MediaFormatAdapterFilter;
-import com.ycloud.mediafilters.MediaMuxerFilter;
-import com.ycloud.mediafilters.PreviewFilter;
-import com.ycloud.mediafilters.SnapshotFilter;
-import com.ycloud.mediafilters.VideoDataManagerFilter;
-import com.ycloud.mediafilters.VideoEncoderGroupFilter;
-import com.ycloud.mediafilters.VideoEndPointFilter;
+import com.ycloud.mediafilters.*;
 import com.ycloud.mediaprocess.OFColorTableFilterUtil;
 import com.ycloud.mediarecord.audio.AudioRecordConstant;
 import com.ycloud.mediarecord.mediacodec.MediaCodecTester;
@@ -82,6 +50,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolder.Callback, IMediaSession {
     private String TAG = NewVideoRecordSession.class.getSimpleName();
+
     static {
         try {
             System.loadLibrary("ffmpeg-neon");
@@ -92,6 +61,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             YYLog.error("NewVideoRecordSession", "LoadLibrary failed, UnsatisfiedLinkError " + e.getMessage());
         }
     }
+
     protected Context mContext = null;
     private VideoSurfaceView mSurfaceView = null;
     // video
@@ -598,13 +568,13 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
         }
 
         //if (mBackgroundMusicID == -1) {
-            mAVSyncFilter.stopRecord(new Runnable() {
-                @Override
-                public void run() {
-                    stopRecord();
-                }
-            }, audioLen, audioStop);
-            YYLog.info(this, "[tracer] pauseRecord!!!");
+        mAVSyncFilter.stopRecord(new Runnable() {
+            @Override
+            public void run() {
+                stopRecord();
+            }
+        }, audioLen, audioStop);
+        YYLog.info(this, "[tracer] pauseRecord!!!");
         //}
     }
 
@@ -625,13 +595,14 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             YYLog.info(TAG, "stop video capture");
             mCameraCaptureFilter.setEncodeEnable(false);
         }
+        mMediaMuxerFilter.deInit();
 
         synchronized (mRecordLock) {
             mVideoFilterContext.getGLManager().post(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        YYLog.info(this, "[tracer] do stopRecord  begin!!!====================");
+                        YYLog.info(this, "[tracer] video do stopRecord  begin!!!====================");
                         UploadStatManager.getInstance().stopStat();
 
                         if (mSnapshotFilter != null && mSnapshotFilter.isSnaping()) {
@@ -653,7 +624,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
                             mVideoDataManagerFilter.stopRecord();
                         }
 
-                        YYLog.info(this, "[tracer] do stopRecord end!!!=========================");
+                        YYLog.info(this, "[tracer] video do stopRecord end!!!=========================");
                     } catch (Exception e) {
                         YYLog.error(TAG, "video stopRecord exception occur:" + e.getMessage());
                     } finally {
@@ -671,11 +642,13 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
                 e.printStackTrace();
             }
         }
+
         synchronized (mRecordLock) {
             mAudioFilterContext.getAudioManager().post(new Runnable() {
                 @Override
                 public void run() {
                     try {
+                        YYLog.info(this, "[tracer] audio do stopRecord  begin!!!====================");
 
                         //stop后不需要做deinit操作.
                         if (mAudioEncoderFilter != null) {
@@ -688,6 +661,8 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
                         if (mStoreDataInMemory) {
                             mAudioDataManagerFilter.stopRecord();
                         }
+
+                        YYLog.info(this, "[tracer] audio do stopRecord end!!!=========================");
                     } catch (Exception e) {
                         YYLog.error(TAG, "audio stopRecord exception occur:" + e.getMessage());
                     } finally {
@@ -706,7 +681,6 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             }
         }
 
-        mMediaMuxerFilter.deInit();
         mIsRecord.set(false);
         YYLog.info(TAG, "stopRecord time:" + (System.currentTimeMillis() - stopTime));
     }
@@ -909,7 +883,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
         if (!mRelease.get()) {
             stopRecord();
             releaseCamera();
-			if (mEnableVideoRecord) {
+            if (mEnableVideoRecord) {
                 stopAudioCapture();
             }
         } else {
@@ -1461,17 +1435,17 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
                         mBlurBitmapCallback.onBlurCallback(bitmap);
                     }
                     break;
-                case  RECORD_START:
+                case RECORD_START:
                     YYLog.info(TAG, "send onVideoRecordStart message");
-                    boolean startSucceed  = ((Boolean) msg.obj).booleanValue();
-                    if(mRecordListener != null) {
+                    boolean startSucceed = ((Boolean) msg.obj).booleanValue();
+                    if (mRecordListener != null) {
                         mRecordListener.onStart(startSucceed);
                     }
                     break;
-                case  RECORD_STOP:
+                case RECORD_STOP:
                     YYLog.info(TAG, "send onVideoRecordStop message");
-                    boolean stopSucceed  = ((Boolean) msg.obj).booleanValue();
-                    if(mRecordListener != null) {
+                    boolean stopSucceed = ((Boolean) msg.obj).booleanValue();
+                    if (mRecordListener != null) {
                         mRecordListener.onStop(stopSucceed);
                     }
                     break;
@@ -1611,7 +1585,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             if (mAudioCaptureFilter != null) {
                 return mAudioCaptureFilter.audioFrequencyData(buffer, len);
             }
-        }else {
+        } else {
             synchronized (mAudioPlayEditorLock) {
                 if (mAudioPlayEditor != null) {
                     return mAudioPlayEditor.frequencyData(buffer, len);
@@ -1633,8 +1607,8 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             }, 200);
         }
     }
-	
-	public void setTakePictureConfig(TakePictureConfig config) {
+
+    public void setTakePictureConfig(TakePictureConfig config) {
         YMRCameraMgr.getInstance().setTakePictureConfig(config);
     }
 
@@ -1714,7 +1688,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
 
     public void takeOriginalPreviewSnapshot(final String path, final int width, final int height, final int type, final int quality, final boolean flipX) {
         if (mRecordFilterGroup != null) {
-            mRecordFilterGroup.takeOriginalPreviewSnapshot( path,  width,  height,  type,  quality, flipX);
+            mRecordFilterGroup.takeOriginalPreviewSnapshot(path, width, height, type, quality, flipX);
         }
     }
 
