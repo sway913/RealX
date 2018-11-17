@@ -28,6 +28,7 @@ import com.yy.audioengine.KaraokeFileMixer
 import kotlinx.android.synthetic.main.fragment_edit.*
 import kotlinx.android.synthetic.main.fragment_mixer_item.view.*
 import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.*
@@ -121,6 +122,37 @@ class EditFragment : Fragment() {
     }
 
     /**
+     * 获取伴奏文件
+     */
+    private fun getAccompanyBy(key: String): String {
+        val dir = File(context!!.filesDir, "accompany")
+        if (!dir.exists()) {
+            dir.mkdirs()
+        }
+        val file = File(dir, "$key.wav")
+        if (file.exists()) {
+            return file.absolutePath
+        }
+        val id = resources.getIdentifier(key, "raw", context!!.packageName)
+        var count: Int
+        var buffer = ByteArray(4 * 1024)
+
+        val input = resources.openRawResource(id)
+        val output = FileOutputStream(file)
+        while (true) {
+            count = input.read(buffer)
+            if (count <= 0) {
+                break
+            } else {
+                output.write(buffer, 0, count)
+            }
+        }
+        output.flush()
+        output.close()
+        return file.absolutePath
+    }
+
+    /**
      * 音调处理
      */
     private fun applyMixer(mixer: MixerItem) {
@@ -128,7 +160,8 @@ class EditFragment : Fragment() {
         mTimer.schedule(0) {
             val audio = mModel.video.value?.audio ?: return@schedule
             val path = if (toggle_music.isChecked) audio.tuner else audio.path
-            if (!mEngine.Open(audio.tuner, "")) {
+            val accompany = getAccompanyBy(mixer.key)
+            if (!mEngine.Open(path, accompany)) {
                 return@schedule
             }
             mEngine.EnableEqualizer(mixer.eqEnable)

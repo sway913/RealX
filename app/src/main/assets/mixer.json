@@ -1,6 +1,59 @@
 [
   {
     "Reverb": [
+      0.5,
+      -24,
+      -2,
+      0.6,
+      0.4,
+      0.3,
+      0.7,
+      0.54,
+      0.9,
+      10
+    ],
+    "limiterEnable": true,
+    "reverbEnable": true,
+    "name": "Original",
+    "icon": "http://id-oss.singoktv.com/common/uploadFile/1070172244164293000878244.png",
+    "Compressor": [
+      -6,
+      0,
+      0,
+      1,
+      160,
+      2
+    ],
+    "EQ": [
+      0,
+      -5.7,
+      -1.5,
+      -4.6,
+      -3.4,
+      2.5,
+      2,
+      0.6,
+      2.1,
+      1,
+      1.3
+    ],
+    "compressEnable": false,
+    "key": "origin",
+    "Limiter": [
+      0,
+      -2,
+      8,
+      90,
+      0,
+      0.9,
+      1,
+      0,
+      1
+    ],
+    "eqEnable": true
+  },
+  {
+    "Reverb": [
       3.6,
       -17.7,
       3,
@@ -38,7 +91,7 @@
       1.3
     ],
     "compressEnable": false,
-    "key": "Ktv",
+    "key": "ktv",
     "Limiter": [
       0,
       -2,
@@ -91,7 +144,7 @@
       1.8
     ],
     "compressEnable": false,
-    "key": "Ziran",
+    "key": "nature",
     "Limiter": [
       0,
       -2,
@@ -144,7 +197,7 @@
       1.9
     ],
     "compressEnable": false,
-    "key": "Gangqin",
+    "key": "piano",
     "Limiter": [
       0,
       -2,
@@ -197,60 +250,7 @@
       1.3
     ],
     "compressEnable": false,
-    "key": "Bengdi",
-    "Limiter": [
-      0,
-      -2,
-      8,
-      90,
-      0,
-      0.9,
-      1,
-      0,
-      1
-    ],
-    "eqEnable": true
-  },
-  {
-    "Reverb": [
-      0.5,
-      -24,
-      -2,
-      0.6,
-      0.4,
-      0.3,
-      0.7,
-      0.54,
-      0.9,
-      10
-    ],
-    "limiterEnable": true,
-    "reverbEnable": true,
-    "name": "Original",
-    "icon": "http://id-oss.singoktv.com/common/uploadFile/1070172244164293000878244.png",
-    "Compressor": [
-      -6,
-      0,
-      0,
-      1,
-      160,
-      2
-    ],
-    "EQ": [
-      0,
-      -5.7,
-      -1.5,
-      -4.6,
-      -3.4,
-      2.5,
-      2,
-      0.6,
-      2.1,
-      1,
-      1.3
-    ],
-    "compressEnable": false,
-    "key": "Origin",
+    "key": "disco",
     "Limiter": [
       0,
       -2,
