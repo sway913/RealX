@@ -42,7 +42,7 @@
                     android:layout_marginStart="@dimen/icon_margin_xlarge"
                     style="@style/AppTheme.Button.Circle"
                     android:minWidth="@dimen/icon_size"
-                    android:text="WeChat"
+                    android:text="微信"
                     android:id="@+id/share_wechat"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/icon_size"/>
@@ -51,7 +51,7 @@
                     android:layout_marginStart="@dimen/icon_margin_xlarge"
                     style="@style/AppTheme.Button.Circle"
                     android:minWidth="@dimen/icon_size"
-                    android:text="Sina"
+                    android:text="微博"
                     android:id="@+id/share_weibo"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/icon_size"/>
