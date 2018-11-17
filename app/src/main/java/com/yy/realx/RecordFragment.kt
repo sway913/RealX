@@ -164,8 +164,8 @@ class RecordFragment : Fragment() {
             if (isRecording) {
                 return@setOnClickListener
             }
+            (activity as ContainerActivity).release()
             mModel.video.value = null
-            mModel.effect.value = null
             clear_video.isEnabled = false
             btn_finish.isEnabled = false
             speed_mode_2.performClick()
@@ -177,7 +177,7 @@ class RecordFragment : Fragment() {
         var amplitude = 0
         mVideoRecord.setEnableAudioRecord(true)
         mVideoRecord.setAudioRecordListener { avgAmplitude, maxAmplitude ->
-            //            Log.d(TAG, "onVolume():$avgAmplitude, $maxAmplitude")
+//            Log.d(TAG, "onVolume():$avgAmplitude, $maxAmplitude")
             synchronized(mModel) {
                 frames++
                 amplitude += avgAmplitude

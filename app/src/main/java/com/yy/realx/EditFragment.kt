@@ -32,6 +32,7 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.schedule
 import kotlin.concurrent.scheduleAtFixedRate
 
@@ -116,7 +117,12 @@ class EditFragment : Fragment() {
         val adapter = MixerAdapter(context!!)
         adapter.setOnItemClickListener {
             Log.d(TAG, "setOnItemClickListener():${it.name}")
-            applyMixer(it)
+            if (mixing.get()) {
+                return@setOnItemClickListener false
+            } else {
+                applyMixer(it)
+                return@setOnItemClickListener true
+            }
         }
         toggle_mixer.adapter = adapter
     }
@@ -156,11 +162,17 @@ class EditFragment : Fragment() {
         return file.absolutePath
     }
 
+    val mixing = AtomicBoolean(false)
+
     /**
      * 音调处理
      */
     private fun applyMixer(mixer: MixerItem) {
         Log.d(TAG, "applyMixer():${mixer.name}")
+        if (mixing.get()) {
+            return
+        }
+        mixing.set(true)
         mTimer.schedule(0) {
             val audio = mModel.video.value?.audio ?: return@schedule
             val path = if (toggle_music.isChecked) audio.tuner else audio.path
@@ -200,6 +212,7 @@ class EditFragment : Fragment() {
                     val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
                     AudioUtils.TransAudioFileToWav(aac, audio.mixer, duration)
                     updateMixerByNow(audio)
+                    mixing.set(false)
                 }
             })
             FileUtils.deleteFileSafely(File(audio.mixer))
@@ -434,6 +447,7 @@ class EditFragment : Fragment() {
     class MixerViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
     class MixerAdapter(val context: Context) : RecyclerView.Adapter<MixerViewHolder>() {
+        var selected: MixerItem? = null
         val list: Array<MixerItem>
 
         init {
@@ -460,16 +474,22 @@ class EditFragment : Fragment() {
             holder.view.mixer_name.text = item.name
             holder.view.setOnClickListener {
                 Log.d(TAG, "setOnClickListener():${item.name}")
-                listener?.invoke(item)
+                if (selected != item) {
+                    if (listener?.invoke(item) == true) {
+                        selected = item
+                        notifyDataSetChanged()
+                    }
+                }
             }
+            holder.view.mixer_name.isSelected = (selected == item)
         }
 
-        var listener: ((MixerItem) -> Unit)? = null
+        private var listener: ((MixerItem) -> Boolean)? = null
 
         /**
          * 监听器
          */
-        fun setOnItemClickListener(function: (MixerItem) -> Unit) {
+        fun setOnItemClickListener(function: (MixerItem) -> Boolean) {
             this.listener = function
         }
     }

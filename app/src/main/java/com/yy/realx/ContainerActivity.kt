@@ -214,7 +214,7 @@ class ContainerActivity : AppCompatActivity() {
     /**
      * 删除临时文件
      */
-    private fun release() {
+    internal fun release() {
         val video = mModel.video.value ?: return
         FileUtils.deleteFileSafely(File(video.audio.path))
         FileUtils.deleteFileSafely(File(video.audio.tuner))

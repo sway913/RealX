@@ -5,7 +5,8 @@
         android:layout_marginEnd="@dimen/icon_margin_bottom"
         style="@style/AppTheme.Button"
         android:padding="@dimen/btn_padding"
-        android:text="Name"
+        android:textColor="@color/btn_text_color_contrast"
+        android:background="@drawable/btn_background_contrast"
         android:id="@+id/mixer_name"
         android:layout_width="@dimen/icon_size"
         android:layout_height="@dimen/icon_size_small"/>
