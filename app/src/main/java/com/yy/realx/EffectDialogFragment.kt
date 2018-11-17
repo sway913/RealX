@@ -10,6 +10,10 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.yy.realx.objectbox.CEffectItem
+import io.objectbox.Box
 import kotlinx.android.synthetic.main.fragment_effect.*
 import kotlinx.android.synthetic.main.fragment_effect_item.view.*
 import java.io.File
@@ -48,6 +52,10 @@ class EffectDialogFragment : DialogFragment() {
         }
     }
 
+    private val box: Box<CEffectItem> by lazy {
+        (activity!! as ContainerActivity).boxFor(CEffectItem::class.java)
+    }
+
     private val mModel: RealXViewModel by lazy {
         ViewModelProviders.of(activity!!).get(RealXViewModel::class.java)
     }
@@ -64,10 +72,22 @@ class EffectDialogFragment : DialogFragment() {
             dismiss()
         }
         effect_gallery.layoutManager = GridLayoutManager(context, 3)
-        val adapter = EffectAdapter()
+        val extras = mutableListOf<EffectItem>()
+        Log.d(TAG, "prepareEffectView():${box.all.size}")
+        box.all.forEach { item ->
+            val avatar = AvatarItem(item.path, item.values)
+            extras.add(EffectItem("face2danim", item.name, item.path, item.type, avatar))
+        }
+        val adapter = EffectAdapter(extras.toTypedArray())
         adapter.setOnItemClickListener {
             Log.d(TAG, "effect3d.OnClick()")
-            val effect = EffectSettings(it.name, it.thumb, EffectSettings.FEATURE_3D)
+            val effect = EffectSettings(it.name, it.thumb, it.type)
+            if (null != it.avatar) {
+                val path = it.avatar.path
+                val type = object : TypeToken<List<Float>>() {}.type
+                val values = Gson().fromJson<List<Float>>(it.avatar.values, type)
+                effect.avatar = AvatarSettings(path, values, false)
+            }
             mModel.effect.value = effect
             dismiss()
         }
@@ -75,16 +95,19 @@ class EffectDialogFragment : DialogFragment() {
         return true
     }
 
-    override fun dismiss() {
-        Log.d(TAG, "dismiss()")
-        super.dismiss()
-    }
+    data class EffectItem(
+        val name: String,
+        val alias: String,
+        val thumb: String,
+        val type: Int = EffectSettings.FEATURE_3D,
+        val avatar: AvatarItem? = null
+    )
 
-    data class EffectItem(val name: String, val alias: String, val thumb: String)
+    data class AvatarItem(val path: String, val values: String)
 
     class EffectViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 
-    class EffectAdapter : RecyclerView.Adapter<EffectViewHolder>() {
+    class EffectAdapter(extras: Array<EffectItem> = emptyArray()) : RecyclerView.Adapter<EffectViewHolder>() {
         private val list: Array<EffectItem> = arrayOf(
             EffectItem("", "无特效", ""),
             EffectItem("avatar_yy_bear", "YY熊", "thumb.png"),
@@ -121,7 +144,7 @@ class EffectDialogFragment : DialogFragment() {
             }
         }
 
-        var listener: ((EffectItem) -> Unit)? = null
+        private var listener: ((EffectItem) -> Unit)? = null
 
         /**
          * 设置item点击

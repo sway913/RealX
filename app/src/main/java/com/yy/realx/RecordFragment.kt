@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.gson.Gson
 import com.ycloud.api.common.FilterGroupType
 import com.ycloud.api.common.FilterType
 import com.ycloud.api.common.SDKCommonCfg
@@ -30,6 +31,8 @@ import com.ycloud.utils.FileUtils
 import com.ycloud.ymrmodel.MediaSampleExtraInfo
 import com.yy.media.MediaConfig
 import com.yy.media.MediaUtils
+import com.yy.realx.objectbox.CEffectItem
+import io.objectbox.Box
 import kotlinx.android.synthetic.main.fragment_record.*
 import java.io.File
 import java.io.FileOutputStream
@@ -254,7 +257,11 @@ class RecordFragment : Fragment() {
                 when (effect.feature) {
                     //先去选择图片
                     EffectSettings.FEATURE_2D -> {
-                        apply2dAvatar(effect)
+                        if (null == effect.avatar) {
+                            apply2dAvatar(effect)
+                        } else {
+                            applyAvatar(effect, effect.avatar!!.path)
+                        }
                     }
                     else -> {
                         applyEffect(effect)
@@ -346,7 +353,7 @@ class RecordFragment : Fragment() {
     /**
      * 设置effect
      */
-    private fun applyEffect(effect: EffectSettings?) {
+    private fun applyEffect(effect: EffectSettings?, call: (() -> Unit)? = null) {
         if (null == effect) {
             return
         }
@@ -364,7 +371,10 @@ class RecordFragment : Fragment() {
         val dir = File(context!!.filesDir, name)
         val avatar = File(dir, "effect0.ofeffect")
         if (!avatar.exists()) {
-            extractFromAssets(name)
+            extractFromAssets(name) {
+                //callback
+                call?.invoke()
+            }
         }
         this.effect = wrapper.addFilter(FilterType.GPUFILTER_EFFECT, FilterGroupType.DEFAULT_FILTER_GROUP)
         val config = hashMapOf<Int, Any>(
@@ -376,7 +386,7 @@ class RecordFragment : Fragment() {
     /**
      * 解压特效文件
      */
-    private fun extractFromAssets(name: String) {
+    private fun extractFromAssets(name: String, call: (() -> Unit)? = null) {
         val dir = File(context!!.filesDir, name)
         if (!dir.exists()) {
             dir.mkdirs()
@@ -408,6 +418,8 @@ class RecordFragment : Fragment() {
             entry = input.nextEntry
         }
         input.close()
+        //callback
+        call?.invoke()
     }
 
     /**
@@ -467,15 +479,29 @@ class RecordFragment : Fragment() {
                 Log.d(TAG, "OnDismissListener.onDismiss():$path")
                 btn_avatar.setImageURI(Uri.fromFile(File(path)))
                 //创建effect
-                applyAvatar(mModel.effect.value, path)
+                val effect = mModel.effect.value ?: return@setOnDismissListener
+                applyAvatar(effect, path)
+                //持久化数据
+                if (null != effect.avatar) {
+                    val size = box.all.size
+                    val json = Gson().toJson(effect.avatar?.values)
+                    Log.d(TAG, "applyAvatar():$json")
+                    val entity = CEffectItem(path = path, name = "表情$size", values = json)
+                    box.put(entity)
+                }
             }
         }
+    }
+
+    private val box: Box<CEffectItem> by lazy {
+        (activity!! as ContainerActivity).boxFor(CEffectItem::class.java)
     }
 
     /**
      * 添加特效文件
      */
     private fun applyAvatar(effect: EffectSettings?, path: String) {
+        Log.d(TAG, "applyAvatar():$path")
         if (null == effect) {
             return
         }
@@ -484,7 +510,9 @@ class RecordFragment : Fragment() {
         btn_avatar.setImageURI(Uri.fromFile(File(path)))
         //标识初始化
         effect.isNew = false
-        applyEffect(effect)
+        applyEffect(effect) {
+            FileUtils.copyFile(path, File(dir, "target.png").absolutePath)
+        }
     }
 
     private val mTimer: Timer by lazy {

@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'io.objectbox'
 
 android {
     compileSdkVersion rootProject.ext.externalCompileSdkVersion
@@ -75,11 +77,11 @@ dependencies {
     implementation "com.android.support.constraint:constraint-layout:1.1.3"
     implementation "android.arch.lifecycle:extensions:1.1.1"
     implementation "com.android.support:exifinterface:28.0.0"
-    implementation 'com.android.support:cardview-v7:28.0.0'
-    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    implementation "com.android.support:cardview-v7:28.0.0"
+    implementation "com.android.support:recyclerview-v7:28.0.0"
     implementation "com.yy.android.medialibrary:audioengine:3.0.963-dev.7"
     implementation "com.google.code.gson:gson:${gson_version}"
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation "com.android.support:multidex:1.0.3"
 
     implementation 'cn.jiguang.sdk:jshare:1.6.0'
     implementation 'cn.jiguang.sdk:jshare-qqmodel:1.6.0'

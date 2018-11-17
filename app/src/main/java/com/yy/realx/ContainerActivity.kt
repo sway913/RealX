@@ -12,12 +12,29 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.ycloud.utils.FileUtils
+import com.yy.realx.objectbox.MyObjectBox
+import io.objectbox.Box
+import io.objectbox.BoxStore
 import java.io.File
 
 class ContainerActivity : AppCompatActivity() {
     companion object {
         private var TAG = ContainerActivity::class.java.simpleName
         private const val PERMISSION_CODE = 0x00001
+    }
+
+    private val objectbox: BoxStore by lazy {
+        MyObjectBox.builder()
+            .androidContext(this)
+            .baseDirectory(this.filesDir)
+            .build()
+    }
+
+    /**
+     * 返回指定数据库实例
+     */
+    fun <T> boxFor(clazz: Class<T>): Box<T> {
+        return objectbox.boxFor(clazz)
     }
 
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -138,6 +155,7 @@ class ContainerActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        objectbox.close()
         release()
     }
 
