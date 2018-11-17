@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -111,8 +112,9 @@ class ShareFragment : Fragment() {
      */
     private fun shareBy(pkg: String, uri: Uri): Boolean {
         val intent = Intent(Intent.ACTION_SEND)
-        intent.setDataAndType(uri, "video/*")
         intent.setPackage(pkg)
+        intent.putExtra(Intent.EXTRA_STREAM, uri)
+        intent.setDataAndType(uri, "video/*")
         val resolvers = context?.packageManager?.queryIntentActivities(
             intent,
             PackageManager.MATCH_DEFAULT_ONLY
@@ -129,8 +131,14 @@ class ShareFragment : Fragment() {
         }
         Log.d(TAG, "${filters[0].activityInfo.name}@${filters[0].activityInfo.packageName}")
         if (filters.size > 1) {
-            startActivity(Intent.createChooser(intent, "请选择分享方式"))
+            ShareDialogFragment.shareBy(childFragmentManager, filters, object : IShareSelectListener {
+                override fun onShare(info: ResolveInfo) {
+                    intent.setClassName(info.activityInfo.packageName, info.activityInfo.name)
+                    startActivity(intent)
+                }
+            })
         } else {
+            intent.setClassName(filters[0].activityInfo.packageName, filters[0].activityInfo.name)
             startActivity(intent)
         }
         return true
