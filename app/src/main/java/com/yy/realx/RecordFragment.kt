@@ -271,7 +271,13 @@ class RecordFragment : Fragment() {
                         }
                     }
                     else -> {
-                        applyEffect(effect)
+                        val name = effect.name
+                        val dir = File(context!!.filesDir, name)
+                        val thumb = File(dir, effect.thumb)
+                        btn_avatar.setImageURI(Uri.fromFile(thumb))
+                        applyEffect(effect) {
+                            btn_avatar.setImageURI(Uri.fromFile(thumb))
+                        }
                     }
                 }
             }
@@ -371,6 +377,7 @@ class RecordFragment : Fragment() {
         }
         //纯粹清除特效
         if (effect.name.isBlank()) {
+            btn_avatar.setImageResource(R.mipmap.ic_menu_portrait)
             mModel.effect.value = null
             return
         }
