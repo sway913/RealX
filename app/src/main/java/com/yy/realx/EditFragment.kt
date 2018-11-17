@@ -136,7 +136,6 @@ class EditFragment : Fragment() {
         val id = resources.getIdentifier(key, "raw", context!!.packageName)
         var count: Int
         var buffer = ByteArray(4 * 1024)
-
         val input = resources.openRawResource(id)
         val output = FileOutputStream(file)
         while (true) {
