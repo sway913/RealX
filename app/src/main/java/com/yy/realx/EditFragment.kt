@@ -146,6 +146,7 @@ class EditFragment : Fragment() {
                 output.write(buffer, 0, count)
             }
         }
+        input.close()
         output.flush()
         output.close()
         return file.absolutePath
