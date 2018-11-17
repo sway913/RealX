@@ -26,7 +26,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         scaleType = ScaleType.MATRIX
         //初始化变量
         paint.style = Paint.Style.FILL_AND_STROKE
-        paint.color = Color.LTGRAY
+        paint.color = Color.RED
         paint.strokeWidth = 10f
     }
 
