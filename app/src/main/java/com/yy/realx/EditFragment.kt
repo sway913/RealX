@@ -132,6 +132,9 @@ class EditFragment : Fragment() {
      */
     private fun getAccompanyBy(key: String): String {
         Log.d(TAG, "getAccompanyBy():$key")
+        if (key.isBlank()) {
+            return ""
+        }
         val dir = File(context!!.filesDir, "accompany")
         if (!dir.exists()) {
             dir.mkdirs()
@@ -175,6 +178,7 @@ class EditFragment : Fragment() {
         mixing.set(true)
         mTimer.schedule(0) {
             val audio = mModel.video.value?.audio ?: return@schedule
+            audio.accompany = mixer.key
             val path = if (toggle_music.isChecked) audio.tuner else audio.path
             val accompany = getAccompanyBy(mixer.key)
             if (!mEngine.Open(path, accompany)) {
@@ -211,7 +215,7 @@ class EditFragment : Fragment() {
                     mEngine.Stop()
                     val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
                     AudioUtils.TransAudioFileToWav(aac, audio.mixer, duration)
-                    updateMixerByNow(audio)
+                    updateMixerByNow(audio, accompany)
                     mixing.set(false)
                 }
             })
@@ -226,9 +230,10 @@ class EditFragment : Fragment() {
     /**
      * 使用音效
      */
-    private fun updateMixerByNow(audio: AudioSettings) {
+    private fun updateMixerByNow(audio: AudioSettings, accompany: String) {
         Log.d(TAG, "updateMixerByNow():${audio.mixer}")
         music.setBackgroundMusic(audio.mixer, 0.0f, 1.0f)
+        music.magicAudioFilePath = accompany
         mViewInternal.setVFilters(music)
         seekTo(0)
     }
@@ -309,6 +314,7 @@ class EditFragment : Fragment() {
             filter.exportBgm = audio.tuner
         }
         filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f)
+        filter.magicAudioFilePath = getAccompanyBy(audio.accompany ?: "")
         val export = VideoExport(context, video.path, out, filter)
         export.setMediaListener(object : IMediaListener {
             override fun onProgress(progress: Float) {
