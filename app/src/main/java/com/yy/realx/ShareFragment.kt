@@ -178,8 +178,11 @@ class ShareFragment : Fragment() {
         values.put(MediaStore.MediaColumns.DATA, file.absolutePath)
         values.put(MediaStore.MediaColumns.SIZE, file.length())
         values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
-        if (file.name.endsWith(".gif")) {
-            values.put(MediaStore.MediaColumns.MIME_TYPE, "image/gif")
+        if (file.name.endsWith(".webp") || file.name.endsWith(".png")
+            || file.name.endsWith(".jpg") || file.name.endsWith(".jpeg")
+            || file.name.endsWith(".gif")
+        ) {
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "image/*")
         } else if (file.name.endsWith(".mp4")) {
             values.put(MediaStore.MediaColumns.MIME_TYPE, "video/*")
         }
