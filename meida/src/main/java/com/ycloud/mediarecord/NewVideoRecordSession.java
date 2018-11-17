@@ -573,7 +573,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             public void run() {
                 stopRecord();
             }
-        }, audioLen, audioStop);
+        }, audioLen, audioStop, mRecordConfig.getRecordSpeed());
         YYLog.info(this, "[tracer] pauseRecord!!!");
         //}
     }
@@ -595,7 +595,6 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             YYLog.info(TAG, "stop video capture");
             mCameraCaptureFilter.setEncodeEnable(false);
         }
-        mMediaMuxerFilter.deInit();
 
         synchronized (mRecordLock) {
             mVideoFilterContext.getGLManager().post(new Runnable() {
@@ -681,6 +680,7 @@ public class NewVideoRecordSession implements ICameraEventListener, SurfaceHolde
             }
         }
 
+        mMediaMuxerFilter.deInit();
         mIsRecord.set(false);
         YYLog.info(TAG, "stopRecord time:" + (System.currentTimeMillis() - stopTime));
     }

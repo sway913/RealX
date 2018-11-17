@@ -8,7 +8,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-
 import com.ycloud.Version;
 import com.ycloud.VideoProcessTracer;
 import com.ycloud.api.config.AspectRatioType;
@@ -41,7 +40,7 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
     private String TAG = NewVideoRecord.class.getSimpleName();
     private NewVideoRecordSession mVideoRecord;
 
-    private final  static int MSG_RECORD_START = 1;
+    private final static int MSG_RECORD_START = 1;
     private final static int MSG_RECORD_STOP = 2;
     private final static int MSG_SWITCH_CAMERA = 3;
     private final static int MSG_RECORD_RELEASE = 4;
@@ -105,7 +104,7 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
                     if (mVideoRecordHandler != null) {
                         mVideoRecordHandler.removeMessages(MSG_RECORD_START);
                     }
-                    boolean isSnapshot = (boolean)msg.obj;
+                    boolean isSnapshot = (boolean) msg.obj;
                     try {
                         HiidoStatistics.startRecordTime = Timestamp.getCurTimeInMillSencods();
                         mVideoRecord.startRecord(isSnapshot);
@@ -152,17 +151,18 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
 
     /**
      * 视频录制对象
-     * @param context             activity context
-     * @param videoSurfaceView    视频录制画面预览的view
-     * @param resolutionType      录制使用的编码分辨率
+     *
+     * @param context          activity context
+     * @param videoSurfaceView 视频录制画面预览的view
+     * @param resolutionType   录制使用的编码分辨率
      */
-    public NewVideoRecord(Context context, VideoSurfaceView videoSurfaceView,ResolutionType resolutionType) {
+    public NewVideoRecord(Context context, VideoSurfaceView videoSurfaceView, ResolutionType resolutionType) {
 
         VideoProcessTracer.getInstace().reset();
 
         YYLog.info(TAG, "VideoRecord begin, SDK version : " + Version.getVersion());
 
-        HandlerThread cameraThread = new HandlerThread(SDK_NAME_PREFIX +"camera");
+        HandlerThread cameraThread = new HandlerThread(SDK_NAME_PREFIX + "camera");
         cameraThread.start();
         mCameraHandler = new Handler(cameraThread.getLooper(), mCameraCallBack);
 
@@ -179,8 +179,9 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
             HiidoStatistics.saveModuleType(IHiidoStatisticsSettings.MODULE_TYPE.RECORD);
         }
 
-        mVideoRecord = new NewVideoRecordSession(context, videoSurfaceView,resolutionType);
+        mVideoRecord = new NewVideoRecordSession(context, videoSurfaceView, resolutionType);
     }
+
     @Override
     public void setOutputPath(String outputPath) {
         mVideoRecord.setOutputPath(outputPath);
@@ -240,7 +241,7 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
     }
 
     @Override
-    public void setCameraID(int Id){
+    public void setCameraID(int Id) {
         mVideoRecord.setCameraID(Id);
     }
 
@@ -295,10 +296,10 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
         });
     }
 
-    private void handleOnStartPreview(IVideoPreviewListener listener) throws VideoRecordException  {
+    private void handleOnStartPreview(IVideoPreviewListener listener) throws VideoRecordException {
         if (listener != null) {
             mVideoRecord.setPreviewListener(this);
-        }else {
+        } else {
             mVideoRecord.setPreviewListener(null);
         }
         mVideoPreviewListener = listener;
@@ -344,7 +345,7 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
     @Override
     public void release() {
         YYLog.info(TAG, " VideoRecord release begin!");
-        if(mCameraHandler != null) {
+        if (mCameraHandler != null) {
             mCameraHandler.getLooper().quitSafely();
         }
 
@@ -365,10 +366,11 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
 
     @Override
     public void setVideoSize(int width, int height) {
-        mVideoRecord.setVideoSize(width,height);
+        mVideoRecord.setVideoSize(width, height);
     }
+
     @Override
-    public boolean isRecordEnabeled(){
+    public boolean isRecordEnabeled() {
         return mVideoRecord.isRecordEnabeled();
     }
 
@@ -379,8 +381,8 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
     }
 
     @Override
-    public void setRecordSnapShot(String snapShotPath, String fileNamePrefix,float snapFrequency) {
-        mVideoRecord.setRecordSnapShot(snapShotPath,fileNamePrefix,snapFrequency);
+    public void setRecordSnapShot(String snapShotPath, String fileNamePrefix, float snapFrequency) {
+        mVideoRecord.setRecordSnapShot(snapShotPath, fileNamePrefix, snapFrequency);
     }
 
     @Override
@@ -394,7 +396,6 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
     }
 
 
-
     @Override
     public void setBlurBitmapCallBack(IBlurBitmapCallback blurBitmapCallBack) {
         mVideoRecord.setBlurBitmapCallBack(blurBitmapCallBack);
@@ -403,7 +404,7 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
 
     @Override
     public int getZoom() {
-       return mVideoRecord.getZoom();
+        return mVideoRecord.getZoom();
     }
 
     @Override
@@ -454,12 +455,13 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
 
     /**
      * 导入开始前，先调resetMemMediaData清理一下内存中数据，如果导入多段MP4文件，只需要在最开始的时候清理一次。
+     *
      * @param MP4Path
      */
     public void importMediaDataToMemory(String MP4Path) {
         MediaDataExtractor extractor = new MediaDataExtractor();
 
-        if (extractor.init(MP4Path) == 0 ) {
+        if (extractor.init(MP4Path) == 0) {
             VideoDataManager.instance().startRecord();
             extractor.ExtractorMediaData(MediaDataExtractor.MediaDataType.MEDIA_DATA_TYPE_VIDEO);
             VideoDataManager.instance().stopRecord();
@@ -533,11 +535,11 @@ public class NewVideoRecord implements IVideoRecord, IVideoPreviewListener {
         if (mVideoRecord != null) {
             return mVideoRecord.audioFrequencyData(buffer, len);
         }
-        return  0;
+        return 0;
     }
-	
-	
-	/* for YOYI */
+
+
+    /* for YOYI */
     @Override
     public void setTakePictureConfig(TakePictureConfig config) {
         if (config == null) {
