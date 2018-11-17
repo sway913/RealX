@@ -87,9 +87,9 @@ class EffectDialogFragment : DialogFragment() {
     class EffectAdapter : RecyclerView.Adapter<EffectViewHolder>() {
         private val list: Array<EffectItem> = arrayOf(
             EffectItem("", "无特效", ""),
-            EffectItem("avatar_yy_bear", "YY熊", ""),
-            EffectItem("avatar_monkey", "YY猴", ""),
-            EffectItem("avatar_aij", "YY酱", "")
+            EffectItem("avatar_yy_bear", "YY熊", "thumb.png"),
+            EffectItem("avatar_monkey", "YY猴", "thumb.png"),
+            EffectItem("avatar_aij", "YY酱", "thumb.png")
         )
 
         override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): EffectViewHolder {
