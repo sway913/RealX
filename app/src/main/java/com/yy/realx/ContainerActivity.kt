@@ -1,13 +1,17 @@
 package com.yy.realx
 
 import android.Manifest
+import android.annotation.TargetApi
 import android.app.Service
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.PowerManager
+import android.provider.Settings
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -16,6 +20,8 @@ import com.yy.realx.objectbox.MyObjectBox
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import java.io.File
+import java.util.*
+import kotlin.concurrent.scheduleAtFixedRate
 
 class ContainerActivity : AppCompatActivity() {
     companion object {
@@ -84,6 +90,43 @@ class ContainerActivity : AppCompatActivity() {
     private fun onPermissionGranted() {
         Log.d(TAG, "onPermissionGranted()")
         mModel.transitTo(Stage.RECORD)
+        //请求权限
+        setBrightnessAuto(false)
+    }
+
+    /**
+     * 设置亮度模式
+     */
+    private fun setBrightnessAuto(auto: Boolean) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.System.canWrite(this)) {
+                val intent = Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS)
+                intent.data = Uri.parse("package:$packageName")
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                //循环检查是否授权
+                loopVerify()
+            } else {
+                Settings.System.putInt(
+                    contentResolver,
+                    Settings.System.SCREEN_BRIGHTNESS_MODE,
+                    if (auto) Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC else Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL
+                )
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    private fun loopVerify() {
+        Timer("", false).scheduleAtFixedRate(0, 200) {
+            if (!Settings.System.canWrite(this@ContainerActivity)) {
+                return@scheduleAtFixedRate
+            }
+            val intent = Intent()
+            intent.setClass(this@ContainerActivity, ContainerActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
     }
 
     /**
@@ -145,10 +188,12 @@ class ContainerActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        setBrightnessAuto(false)
         wakeLock.acquire()
     }
 
     override fun onPause() {
+        setBrightnessAuto(true)
         wakeLock.release()
         super.onPause()
     }
