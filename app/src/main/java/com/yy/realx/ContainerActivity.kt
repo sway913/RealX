@@ -130,6 +130,8 @@ class ContainerActivity : AppCompatActivity() {
             intent.setClass(this@ContainerActivity, ContainerActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
+            //取消schedule
+            cancel()
         }
     }
 
