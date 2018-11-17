@@ -125,6 +125,7 @@ class EditFragment : Fragment() {
      * 获取伴奏文件
      */
     private fun getAccompanyBy(key: String): String {
+        Log.d(TAG, "getAccompanyBy():$key")
         val dir = File(context!!.filesDir, "accompany")
         if (!dir.exists()) {
             dir.mkdirs()
@@ -134,6 +135,9 @@ class EditFragment : Fragment() {
             return file.absolutePath
         }
         val id = resources.getIdentifier(key, "raw", context!!.packageName)
+        if (id <= 0) {
+            return ""
+        }
         var count: Int
         var buffer = ByteArray(4 * 1024)
         val input = resources.openRawResource(id)
