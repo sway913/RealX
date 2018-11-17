@@ -371,10 +371,9 @@ class RecordFragment : Fragment() {
         val dir = File(context!!.filesDir, name)
         val avatar = File(dir, "effect0.ofeffect")
         if (!avatar.exists()) {
-            extractFromAssets(name) {
-                //callback
-                call?.invoke()
-            }
+            extractFromAssets(name)
+            //callback
+            call?.invoke()
         }
         this.effect = wrapper.addFilter(FilterType.GPUFILTER_EFFECT, FilterGroupType.DEFAULT_FILTER_GROUP)
         val config = hashMapOf<Int, Any>(
@@ -386,7 +385,7 @@ class RecordFragment : Fragment() {
     /**
      * 解压特效文件
      */
-    private fun extractFromAssets(name: String, call: (() -> Unit)? = null) {
+    private fun extractFromAssets(name: String) {
         val dir = File(context!!.filesDir, name)
         if (!dir.exists()) {
             dir.mkdirs()
@@ -418,8 +417,6 @@ class RecordFragment : Fragment() {
             entry = input.nextEntry
         }
         input.close()
-        //callback
-        call?.invoke()
     }
 
     /**
