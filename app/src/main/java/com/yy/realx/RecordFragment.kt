@@ -47,10 +47,17 @@ class RecordFragment : Fragment() {
     companion object {
         private var TAG = RecordFragment::class.java.simpleName
         private val TunerMode = arrayOf(
-            "VeoNone", "VeoLuBan", "VeoLorie", "VeoUncle", "VeoWarCraft"
+            "VeoNone",
+            "VeoLuBan",
+            "VeoLorie",
+            "VeoUncle",
+            "VeoWarCraft",
+            "VeoYoungLady",
+            "VeoGirl",
+            "VeoManWebCelebrity"
         )
         private val TunerName = arrayOf(
-            "原声", "鲁班", "萝莉", "大叔", "魔兽"
+            "原声", "鲁班", "萝莉", "大叔", "魔兽", "御姐", "少女", "渣男"
         )
         private val SpeedMode = arrayOf(
             0.2f, 0.5f, 1.0f, 2.0f, 4.0f
