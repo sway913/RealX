@@ -99,6 +99,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 point.y = value
             }
         }
+        remark.set(false)
     }
 
     override fun setScaleType(scaleType: ScaleType?) {
@@ -145,7 +146,8 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             if (first?.pointerCount ?: 0 > 1 || second?.pointerCount ?: 0 > 1) {
                 return false
             }
-            if (markCoordinate(first, second, distanceX, distanceY)) {
+            Log.d(TAG, "onScroll():action = ${first?.action}, ${second?.action}, ${remark.get()}")
+            if (!translate.get() && markCoordinate(first, second, distanceX, distanceY)) {
                 this@ExImageView.postInvalidate()
             } else if (!remark.get()) {
                 restrictTranslate(-distanceX, -distanceY)
@@ -178,7 +180,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val y = first.y
         var index = -1
         points.mapIndexed { idx, point ->
-            if (Math.abs(point.x - x) < 5 * scale && Math.abs(point.y - y) < 5 * scale) {
+            if (Math.abs(point.x - x) < 10 * scale && Math.abs(point.y - y) < 10 * scale) {
                 index = idx
                 return@mapIndexed
             }
@@ -207,6 +209,8 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         return rect
     }
 
+    private val translate = AtomicBoolean(false)
+
     /**
      * 左右滑动
      */
@@ -231,6 +235,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         _matrix.postTranslate(deltaX, deltaY)
         imageMatrix = _matrix
         //重新标记点
+        translate.set(true)
         coordinates.clear()
     }
 
@@ -240,6 +245,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             Log.d(TAG, "onScale():${detector?.focusX}, ${detector?.focusY}")
             if (null != detector) {
                 val translate = getNowTranslate()
+                Log.d(TAG, "onScale():${translate.x}, ${translate.y}")
                 restrictScale(getNowScale() * detector.scaleFactor, detector.focusX, detector.focusY)
             }
             return true
@@ -262,15 +268,18 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (null == event) {
             return false
         }
+        Log.d(TAG, "onTouchEvent():action = ${event.action}")
         val action = event.action
         if (action == MotionEvent.ACTION_UP
             || action == MotionEvent.ACTION_CANCEL
         ) {
-            Log.d(TAG, "onTouchEvent():${remark.get()}")
+            Log.d(TAG, "onTouchEvent():${remark.get()}, ${translate.get()}")
             if (remark.get()) {
                 remarkBackward()
             }
-            remark.set(false)
+            if (translate.get()) {
+                translate.set(false)
+            }
         }
         Log.d(TAG, "onTouchEvent():${event.pointerCount}")
         if (single.onTouchEvent(event)) return true
