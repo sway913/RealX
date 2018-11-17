@@ -89,7 +89,7 @@ class EffectDialogFragment : DialogFragment() {
             EffectItem("", "无特效", ""),
             EffectItem("avatar_yy_bear", "YY熊", ""),
             EffectItem("avatar_monkey", "YY猴", ""),
-            EffectItem("avatar_aij_gltf", "YY酱", "")
+            EffectItem("avatar_aij", "YY酱", "")
         )
 
         override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): EffectViewHolder {
