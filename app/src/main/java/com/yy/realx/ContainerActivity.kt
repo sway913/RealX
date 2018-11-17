@@ -94,6 +94,10 @@ class ContainerActivity : AppCompatActivity() {
         setBrightnessAuto(false)
     }
 
+    private val mTimer: Timer by lazy {
+        Timer("Verify_Timer", false)
+    }
+
     /**
      * 设置亮度模式
      */
@@ -105,7 +109,7 @@ class ContainerActivity : AppCompatActivity() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intent)
                 //循环检查是否授权
-                loopVerify()
+                loopVerifySettings()
             } else {
                 Settings.System.putInt(
                     contentResolver,
@@ -117,8 +121,8 @@ class ContainerActivity : AppCompatActivity() {
     }
 
     @TargetApi(Build.VERSION_CODES.M)
-    private fun loopVerify() {
-        Timer("", false).scheduleAtFixedRate(0, 200) {
+    private fun loopVerifySettings() {
+        mTimer.scheduleAtFixedRate(0, 200) {
             if (!Settings.System.canWrite(this@ContainerActivity)) {
                 return@scheduleAtFixedRate
             }
@@ -193,6 +197,7 @@ class ContainerActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
+        mTimer.cancel()
         setBrightnessAuto(true)
         wakeLock.release()
         super.onPause()
