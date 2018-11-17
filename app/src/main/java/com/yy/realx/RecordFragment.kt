@@ -113,6 +113,7 @@ class RecordFragment : Fragment() {
             }
             //刷新界面
             activity!!.runOnUiThread {
+                clear_video.isEnabled = video.segments.isNotEmpty()
                 btn_finish.isEnabled = video.segments.isNotEmpty()
                 record_ms.text = ""
                 toggle_record.setImageResource(R.drawable.btn_start_record)
@@ -154,6 +155,7 @@ class RecordFragment : Fragment() {
             }
         }
         //事件绑定
+        clear_video.isEnabled = mModel.video.value?.segments?.isNotEmpty() ?: false
         clear_video.setOnClickListener {
             Log.d(TAG, "ClearVideo.OnClick()")
             if (!isInitialed.get()) {
@@ -164,6 +166,7 @@ class RecordFragment : Fragment() {
             }
             mModel.video.value = null
             mModel.effect.value = null
+            clear_video.isEnabled = false
             btn_finish.isEnabled = false
             speed_mode_2.performClick()
             btn_voice.text = TunerName[0]
