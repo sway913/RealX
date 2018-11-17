@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.media.ExifInterface
 import android.support.v4.app.DialogFragment
@@ -35,10 +36,48 @@ class AvatarDialogFragment : DialogFragment() {
         )
 
         private val EMPTY_VALUES = arrayOf(
-            0.33004844F, 0.4342399F, 0.3376519F, 0.4953576F, 0.37742564F, 0.5651504F, 0.4846746F, 0.60274976F, 0.5905083F, 0.56271243F, 0.6291168F, 0.49268258F, 0.6356264F, 0.43156135F,
-            0.38611716F, 0.4112973F, 0.44249836F, 0.4132291F, 0.52420384F, 0.41183403F, 0.58109665F, 0.40824988F, 0.41532722F, 0.40323994F, 0.41392505F, 0.41701722F, 0.55120397F, 0.40094772F, 0.55345684F, 0.41508043F,
-            0.43709454F, 0.4724888F, 0.52951866F, 0.47141045F,
-            0.42800882F, 0.5253006F, 0.4834269F, 0.50762373F, 0.5392555F, 0.5235423F, 0.48408976F, 0.539486F
+            0.33004844F,
+            0.4342399F,
+            0.3376519F,
+            0.4953576F,
+            0.37742564F,
+            0.5651504F,
+            0.4846746F,
+            0.60274976F,
+            0.5905083F,
+            0.56271243F,
+            0.6291168F,
+            0.49268258F,
+            0.6356264F,
+            0.43156135F,
+            0.38611716F,
+            0.4112973F,
+            0.44249836F,
+            0.4132291F,
+            0.52420384F,
+            0.41183403F,
+            0.58109665F,
+            0.40824988F,
+            0.41532722F,
+            0.40323994F,
+            0.41392505F,
+            0.41701722F,
+            0.55120397F,
+            0.40094772F,
+            0.55345684F,
+            0.41508043F,
+            0.43709454F,
+            0.4724888F,
+            0.52951866F,
+            0.47141045F,
+            0.42800882F,
+            0.5253006F,
+            0.4834269F,
+            0.50762373F,
+            0.5392555F,
+            0.5235423F,
+            0.48408976F,
+            0.539486F
         )
 
         /**
@@ -180,13 +219,14 @@ class AvatarDialogFragment : DialogFragment() {
             isDetecting.set(false)
             val effect = EffectSettings("face2danim", "target.png", EffectSettings.FEATURE_2D)
             effect.avatar = AvatarSettings(path, values)
-            val bulder = StringBuilder()
-            values.forEach {
-                bulder.append(it).append("F").append(",")
-            }
-            Log.d(TAG, bulder.toString())
             mModel.effect.value = effect
+            //刷新ui
             avatar_image.setValues(values)
+            if (Build.BRAND.toLowerCase().contains("xiaomi")) {
+                avatar_image.setImageBitmap(BitmapFactory.decodeFile(path))
+            } else {
+                avatar_image.setImageURI(Uri.fromFile(File(path)))
+            }
         }
     }
 

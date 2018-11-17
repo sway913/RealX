@@ -127,6 +127,7 @@ class EditFragment : Fragment() {
         Log.d(TAG, "applyMixer():${mixer.name}")
         mTimer.schedule(0) {
             val audio = mModel.video.value?.audio ?: return@schedule
+            val path = if (toggle_music.isChecked) audio.tuner else audio.path
             if (!mEngine.Open(audio.tuner, "")) {
                 return@schedule
             }
@@ -301,7 +302,7 @@ class EditFragment : Fragment() {
             music = VideoFilter(context)
         }
         val path = audio.tuner
-        music!!.setBackgroundMusic(path, 0.0f, 1.0f, audio.start)
+        music.setBackgroundMusic(path, 0.0f, 1.0f, audio.start)
         mViewInternal.setVFilters(music)
         //重新开始
         seekTo(0)
