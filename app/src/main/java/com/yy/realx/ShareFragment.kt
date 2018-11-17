@@ -2,13 +2,14 @@ package com.yy.realx
 
 import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProviders
+import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
+import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.support.v4.app.Fragment
-import android.support.v4.content.FileProvider
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -78,14 +79,14 @@ class ShareFragment : Fragment() {
         share_done.setOnClickListener {
             activity!!.onBackPressed()
         }
-        val pkg = context!!.packageName
-        val uri = FileProvider.getUriForFile(context!!, "${pkg}.fileprovider", File(path))
-        Log.d(TAG, "ShareUri():$uri")
+//        val pkg = context!!.packageName
+//        val uri = FileProvider.getUriForFile(context!!, "${pkg}.fileprovider", File(path))
+//        Log.d(TAG, "ShareUri():$uri")
         share_wechat.setOnClickListener {
             if (!JShareInterface.isClientValid(Wechat.Name)) {
                 return@setOnClickListener
             }
-            if (!shareBy("com.tencent.mm", uri)) {
+            if (!shareBy("com.tencent.mm", path)) {
                 Toast.makeText(context, "请先安装腾讯微信", Toast.LENGTH_SHORT).show()
             }
         }
@@ -93,7 +94,7 @@ class ShareFragment : Fragment() {
             if (!JShareInterface.isClientValid(Wechat.Name)) {
                 return@setOnClickListener
             }
-            if (!shareBy("com.tencent.mobileqq", uri)) {
+            if (!shareBy("com.tencent.mobileqq", path)) {
                 Toast.makeText(context, "请先安装手机qq", Toast.LENGTH_SHORT).show()
             }
         }
@@ -101,7 +102,7 @@ class ShareFragment : Fragment() {
             if (!JShareInterface.isClientValid(Wechat.Name)) {
                 return@setOnClickListener
             }
-            if (!shareBy("com.sina.weibo", uri)) {
+            if (!shareBy("com.sina.weibo", path)) {
                 Toast.makeText(context, "请先安装新浪微博", Toast.LENGTH_SHORT).show()
             }
         }
@@ -110,7 +111,9 @@ class ShareFragment : Fragment() {
     /**
      * 通过系统分享
      */
-    private fun shareBy(pkg: String, uri: Uri): Boolean {
+    private fun shareBy(pkg: String, path: String): Boolean {
+        val uri = tryInsertMediaStore(File(path)) ?: return false
+        //开始发送
         val intent = Intent(Intent.ACTION_SEND)
         intent.setPackage(pkg)
         intent.putExtra(Intent.EXTRA_STREAM, uri)
@@ -131,17 +134,61 @@ class ShareFragment : Fragment() {
         }
         Log.d(TAG, "${filters[0].activityInfo.name}@${filters[0].activityInfo.packageName}")
         if (filters.size > 1) {
-            ShareDialogFragment.shareBy(childFragmentManager, filters, object : IShareSelectListener {
-                override fun onShare(info: ResolveInfo) {
-                    intent.setClassName(info.activityInfo.packageName, info.activityInfo.name)
-                    startActivity(intent)
-                }
-            })
+//            ShareDialogFragment.shareBy(childFragmentManager, filters, object : IShareSelectListener {
+//                override fun onShare(info: ResolveInfo) {
+//                    intent.setClassName(info.activityInfo.packageName, info.activityInfo.name)
+//                    startActivity(intent)
+//                }
+//            })
+            startActivity(Intent.createChooser(intent, "分享到"))
         } else {
             intent.setClassName(filters[0].activityInfo.packageName, filters[0].activityInfo.name)
             startActivity(intent)
         }
         return true
+    }
+
+    /**
+     * 插入系统相册，然后分享
+     *
+     * @param file
+     * @return
+     */
+    private fun tryInsertMediaStore(file: File): Uri? {
+        //先查询
+        val projection = arrayOf(MediaStore.Video.Media._ID)
+        var cursor: Cursor? = null
+        try {
+            cursor = context!!.contentResolver.query(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, projection,
+                MediaStore.Video.Media.DATA + "=?", arrayOf(file.absolutePath), null
+            )
+            if (null != cursor && cursor.moveToFirst()) {
+                val id = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID))
+                return Uri.withAppendedPath(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id.toString())
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "tryInsertMediaStore() : " + e.message)
+        } finally {
+            cursor?.close()
+        }
+        //再插入
+        val values = ContentValues()
+        values.put(MediaStore.MediaColumns.TITLE, file.name)
+        values.put(MediaStore.MediaColumns.DATA, file.absolutePath)
+        values.put(MediaStore.MediaColumns.SIZE, file.length())
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+        if (file.name.endsWith(".gif")) {
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "image/gif")
+        } else if (file.name.endsWith(".mp4")) {
+            values.put(MediaStore.MediaColumns.MIME_TYPE, "video/*")
+        }
+        try {
+            return context!!.contentResolver.insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, values)
+        } catch (e: Exception) {
+            Log.e(TAG, "tryInsertMediaStore() : " + e.message)
+        }
+        return Uri.fromFile(file)
     }
 
     /**
