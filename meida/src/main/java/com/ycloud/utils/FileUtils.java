@@ -483,7 +483,7 @@ public class FileUtils {
 				// String pkgPath = context.getPackageCodePath();
 				file = new File(file.getPath(), "Android/data/" + pkgName);
 				if (!file.exists()) {
-					file.mkdir();
+					file.mkdirs();
 				}
 			}
 		}

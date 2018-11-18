@@ -54,7 +54,7 @@ public class VideoFileRecordFilter extends AbstractYYMediaFilter implements Runn
 
         File file = new File(videoPath);
         if (!file.exists() && !file.isDirectory()) {
-            file.mkdir();
+            file.mkdirs();
         }
 
         logFileName = videoPath + File.separator + "yyvideo-" + Thread.currentThread().getId() + (mFileIndex++);

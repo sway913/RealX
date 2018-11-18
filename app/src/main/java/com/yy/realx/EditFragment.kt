@@ -93,10 +93,10 @@ class EditFragment : Fragment() {
         val video = mModel.video.value
         checkNotNull(video)
         val path = video.path
-        Log.d(TAG, "VideoPath():$path")
+        Log.d(TAG, "VideoPath():$path, ${video.hashCode()}")
         mViewInternal.setVideoPath(path)
         val audio = video.audio
-        Log.d(TAG, "AudioPath():${audio.path}")
+        Log.d(TAG, "AudioPath():${audio.path}, ${audio.hashCode()}")
         music.setBackgroundMusic(audio.path, 0.0f, 1.0f)
         mViewInternal.setVFilters(music)
         edit_back.setOnClickListener {
@@ -120,7 +120,7 @@ class EditFragment : Fragment() {
             if (mixing.get()) {
                 return@setOnItemClickListener false
             } else {
-                applyMixer(it)
+                applyMixer(audio, it)
                 return@setOnItemClickListener true
             }
         }
@@ -170,14 +170,13 @@ class EditFragment : Fragment() {
     /**
      * 音调处理
      */
-    private fun applyMixer(mixer: MixerItem) {
-        Log.d(TAG, "applyMixer():${mixer.name}")
+    private fun applyMixer(audio: AudioSettings, mixer: MixerItem) {
+        Log.d(TAG, "applyMixer():${mixer.name}, ${audio.hashCode()}")
         if (mixing.get()) {
             return
         }
         mixing.set(true)
         mTimer.schedule(0) {
-            val audio = mModel.video.value?.audio ?: return@schedule
             audio.accompany = mixer.key
             val path = if (toggle_music.isChecked) audio.tuner else audio.path
             val accompany = getAccompanyBy(mixer.key)
@@ -231,7 +230,7 @@ class EditFragment : Fragment() {
      * 使用音效
      */
     private fun updateMixerByNow(audio: AudioSettings, accompany: String) {
-        Log.d(TAG, "updateMixerByNow():${audio.mixer}")
+        Log.d(TAG, "updateMixerByNow():${audio.mixer}, ${audio.hashCode()}")
         music.setBackgroundMusic(audio.mixer, 0.0f, 1.0f)
         music.magicAudioFilePath = accompany
         mViewInternal.setVFilters(music)
@@ -242,7 +241,7 @@ class EditFragment : Fragment() {
      * 原声变声切换
      */
     private fun switchVolume(checked: Boolean, audio: AudioSettings) {
-        Log.d(TAG, "switchVolume():$checked")
+        Log.d(TAG, "switchVolume():$checked, ${audio.hashCode()}")
         if (checked) {
             music.setBackgroundMusic(audio.tuner, 0.0f, 1.0f)
         } else {
@@ -314,7 +313,7 @@ class EditFragment : Fragment() {
             filter.exportBgm = audio.tuner
         }
         filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f)
-        filter.magicAudioFilePath = getAccompanyBy(audio.accompany ?: "")
+        filter.magicAudioFilePath = getAccompanyBy(audio.accompany)
         val export = VideoExport(context, video.path, out, filter)
         export.setMediaListener(object : IMediaListener {
             override fun onProgress(progress: Float) {

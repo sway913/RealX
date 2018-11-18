@@ -3,6 +3,7 @@ package com.ycloud.mediaprocess;
 import android.content.Context;
 import android.text.TextUtils;
 
+import android.util.Log;
 import com.ycloud.VideoProcessTracer;
 import com.ycloud.api.common.TransitionInfo;
 import com.ycloud.api.process.IMediaListener;
@@ -149,6 +150,7 @@ public class VideoExportInternal extends MediaBase {
             audioCount++;
         }
 
+        YYLog.debug(TAG, "processAudio():mInputPath = %s, %d", mInputPath, audioCount);
         boolean ret;
         if (mediaInfo.audio_codec_name != null) {
             AudioProcessInternal audioProcessInternal = new AudioProcessInternal();
@@ -172,14 +174,18 @@ public class VideoExportInternal extends MediaBase {
             audioMixInternal.setOutputPath(mixAudioPath);
             boolean needClip = true;
 
+            YYLog.debug(TAG, "processAudio():pureAudioPath = %s", pureAudioPath);
             if (pureAudioPath != null) {
                 audioMixInternal.addAudioMixBean(pureAudioPath, 0, 0, mVideoFilter.VIDEO_VOLUME_TIMES * mVideoFilter.mVideoVolume);
                 needClip = false;
             }
+
+            YYLog.debug(TAG, "processAudio():bgmPath = %s", bgmPath);
             if (bgmPath != null) {
                 audioMixInternal.addAudioMixBean(bgmPath, 0, 0, mVideoFilter.mMusicVolume);
             }
 
+            YYLog.debug(TAG, "processAudio():magicAudioPath = %s", magicAudioPath);
             if (magicAudioPath != null) {
                 audioMixInternal.addAudioMixBean(magicAudioPath, 0, 0, 1);
             }

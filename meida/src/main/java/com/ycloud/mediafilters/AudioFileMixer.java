@@ -1,7 +1,6 @@
 package com.ycloud.mediafilters;
 
 import android.media.MediaFormat;
-
 import com.ycloud.api.common.SampleType;
 import com.ycloud.audio.AacFileWriter;
 import com.ycloud.audio.AudioSimpleMixer;
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class AudioFileMixer {
-    final static String TAG= "AudioFileMixer";
+    final static String TAG = "AudioFileMixer";
     String mCacheDir;
     String mBgmMusicPath;
     float mBgmVolume = 1.0f;
@@ -42,7 +41,7 @@ public class AudioFileMixer {
     //private static final int kSAMPLE_CHANNELS  = 2;
     private AacFileWriter aacFileWriter;
 
-    MediaMuxerFilter  mMediaMuxFilter =null;
+    MediaMuxerFilter mMediaMuxFilter = null;
     MixedAudioDataManagerFilter mMusicDataManagerFilter = new MixedAudioDataManagerFilter();
 
     public AudioFileMixer(String cacheDir, AudioFilterContext context) {
@@ -132,16 +131,16 @@ public class AudioFileMixer {
                 String mixAudioPath = mCacheDir + "mixAudio.wav";
                 audioMixInternal.setOutputPath(mixAudioPath);
                 boolean needClip = true;
-                if (mPureAudioPath != null) {
+                if (mPureAudioPath != null && !"".equals(mPureAudioPath.trim())) {
                     audioMixInternal.addAudioMixBean(mPureAudioPath, 0, 0, mVideoVolume);
                     needClip = false;
                 }
 
-                if (mBgmMusicPath != null) {
+                if (mBgmMusicPath != null && !"".equals(mBgmMusicPath.trim())) {
                     audioMixInternal.addAudioMixBean(mBgmMusicPath, 0, 0, mBgmVolume);
                 }
 
-                if (mMagicAudioPath != null) {
+                if (mMagicAudioPath != null && !"".equals(mMagicAudioPath.trim())) {
                     audioMixInternal.addAudioMixBean(mMagicAudioPath, 0, 0, 1);
                 }
 
@@ -161,7 +160,7 @@ public class AudioFileMixer {
                         processAudioFile(mixAudioPath, 1.0f);
                     }
                 }
-            } else if(audioCount == 1){
+            } else if (audioCount == 1) {
                 ret = false;
                 if (mBgmMusicPath != null) {
                     ret = audioToWav(mBgmMusicPath, transcodeAudioPath, mDuration);
@@ -178,7 +177,7 @@ public class AudioFileMixer {
                 if (mPureAudioPath != null) {
                     processAudioFile(mPureAudioPath, mVideoVolume);
                 }
-            }else {
+            } else {
                 if (mMediaMuxFilter != null) {
                     mMediaMuxFilter.setEnableAudio(false);
                     mAudioFilterContext.getRecordConfig().setEnableAudioRecord(false);
@@ -243,7 +242,7 @@ public class AudioFileMixer {
                     AudioSimpleMixer.mono2stereo(frame, stereoFrame, readLen);
                     sample.mDataBytes = stereoFrame;
                     sample.mBufferSize = readLen * 2;
-                }else {
+                } else {
                     sample.mDataBytes = frame;
                     sample.mBufferSize = readLen;
                 }
@@ -261,6 +260,7 @@ public class AudioFileMixer {
     }
 
     private int mDebugCnt = 0;
+
     private class EncodedFrameReceiver extends AbstractYYMediaFilter {
         public boolean processMediaSample(YYMediaSample sample, Object upstream) {
             if (sample.mDataByteBuffer == null) {
@@ -287,9 +287,9 @@ public class AudioFileMixer {
             }
             */
 
-            if(mMediaMuxFilter != null) {
+            if (mMediaMuxFilter != null) {
                 //TODO. remove this
-                if(mDebugCnt++ % 50 == 0) {
+                if (mDebugCnt++ % 50 == 0) {
                     YYLog.debug(this, "[audio] AudioFileMixer recv audio encode data");
                 }
                 mMediaMuxFilter.processMediaSample(sample, this);

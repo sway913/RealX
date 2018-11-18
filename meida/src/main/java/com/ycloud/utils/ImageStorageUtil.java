@@ -36,7 +36,7 @@ public class ImageStorageUtil {
 
         File file = new File(logPath);
         if(!file.exists() && !file.isDirectory()) {
-            file.mkdir();
+            file.mkdirs();
         }
 
         logFileName = logPath + File.separator + "Image-" + Thread.currentThread().getId() + (mFileIndex++);
