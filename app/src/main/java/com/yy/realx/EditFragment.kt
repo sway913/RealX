@@ -166,6 +166,10 @@ class EditFragment : Fragment() {
      * 新的混音接口
      */
     private fun applyMixerNew(audio: AudioSettings, mixer: MixerItem) {
+        if (mixing.get()) {
+            return
+        }
+        mixing.set(true)
         val log = audio.path.replace(".wav", ".log")
         IOneKeyTunerApi.CreateOneKeyTuner(log)
         val tuner = audio.tuner
@@ -179,13 +183,14 @@ class EditFragment : Fragment() {
                     Log.d(TAG, "VolProcessError():$progress")
                     IOneKeyTunerApi.Destroy()
                     cancel()
+                    mixing.set(false)
                 }
                 100 -> {
                     Log.d(TAG, "VolProcessFinish():$progress")
                     IOneKeyTunerApi.Destroy()
                     cancel()
                     //设置背景音乐
-                    updateMixerByNow(audio, accompany)
+                    applyMixer(audio, mixer)
                 }
                 else -> {
                     Log.d(TAG, "VolProcessProcess():$progress")
@@ -198,19 +203,16 @@ class EditFragment : Fragment() {
      * 音调处理
      */
     private fun applyMixer(audio: AudioSettings, mixer: MixerItem) {
-        Log.d(TAG, "applyMixer():${mixer.name}, ${audio.hashCode()}")
-        if (mixing.get()) {
-            return
-        }
-        mixing.set(true)
+        Log.d(TAG, "applyMixer():${mixer.name}")
         mTimer.schedule(0) {
-            audio.accompany = mixer.key
-            val path = if (toggle_music.isChecked) audio.tuner else audio.path
-            val accompany = getAccompanyBy(mixer.key)
-            Log.d(TAG, "getAccompanyBy():$accompany")
+            val path = if (toggle_music.isChecked) {
+                audio.mixer
+            } else {
+                audio.path
+            }
             val engine = KaraokeFileMixer()
             engine.Init()
-            if (!engine.Open(path, accompany)) {
+            if (!engine.Open(path, "")) {
                 return@schedule
             }
             engine.EnableEqualizer(mixer.eqEnable)
@@ -244,13 +246,13 @@ class EditFragment : Fragment() {
                     Log.d(TAG, "OnFinishMixer():${audio.mixer}")
                     engine.Stop()
                     engine.Destroy()
+                    FileUtils.deleteFileSafely(File(audio.mixer))
                     val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
                     AudioUtils.TransAudioFileToWav(aac, audio.mixer, duration)
-                    updateMixerByNow(audio, accompany)
+                    updateMixerByNow(audio)
                     mixing.set(false)
                 }
             })
-            FileUtils.deleteFileSafely(File(audio.mixer))
             val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
             if (!engine.Start(aac)) {
                 return@schedule
@@ -261,8 +263,8 @@ class EditFragment : Fragment() {
     /**
      * 使用音效
      */
-    private fun updateMixerByNow(audio: AudioSettings, accompany: String) {
-        Log.d(TAG, "updateMixerByNow():${audio.mixer}, ${audio.hashCode()}, $accompany")
+    private fun updateMixerByNow(audio: AudioSettings) {
+        Log.d(TAG, "updateMixerByNow():${audio.mixer}")
         music.setBackgroundMusic(audio.mixer, 0.0f, 1.0f)
         mViewInternal.setVFilters(music)
         seekTo(0)

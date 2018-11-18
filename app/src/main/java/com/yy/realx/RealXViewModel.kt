@@ -95,7 +95,6 @@ data class AudioSettings(val path: String, val start: Int = 0) {
 
     var tuner: String = path.replace(EXT, "_tuner$EXT")
     var mixer: String = path.replace(EXT, "_mixer$EXT")
-    var accompany: String = ""
 }
 
 /**
