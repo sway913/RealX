@@ -15,8 +15,8 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     companion object {
         private val TAG = ExImageView::class.java.simpleName
-        const val MIN_SCALE: Float = 1F
-        const val MAX_SCALE: Float = 5F
+        const val MIN_SCALE: Float = 0.1F
+        const val MAX_SCALE: Float = 10F
     }
 
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -43,6 +43,19 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             parseCoordinates()
             invalidate()
         }
+    }
+
+    private var INIT_SCALE = MIN_SCALE
+
+    /**
+     * 设定最小缩放
+     */
+    fun setMinScale(min: Float) {
+        if (min <= 0) {
+            return
+        }
+        INIT_SCALE = min
+        restrictScale(min, 0F, 0F)
     }
 
     /**
@@ -79,10 +92,10 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         values.mapIndexed { index, value ->
             if (index % 2 == 0) {
                 point = PointF()
-                coordinates[index] = value * width * scale + translate.x
+                coordinates[index] = value * width * scale / INIT_SCALE + translate.x
                 point.x = coordinates[index]
             } else {
-                coordinates[index] = value * height * scale + translate.y
+                coordinates[index] = value * height * scale / INIT_SCALE + translate.y
                 point.y = coordinates[index]
                 points.add(point)
             }
@@ -100,10 +113,10 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         coordinates.mapIndexed { index, value ->
             point = points[index / 2]
             if (index % 2 == 0) {
-                values[index] = (value - translate.x) / (scale * width)
+                values[index] = (value - translate.x) * INIT_SCALE / (scale * width)
                 point.x = value
             } else {
-                values[index] = (value - translate.y) / (scale * height)
+                values[index] = (value - translate.y) * INIT_SCALE / (scale * height)
                 point.y = value
             }
         }
@@ -264,7 +277,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 约束缩放比例
      */
     private fun restrictScale(s: Float, x: Float, y: Float) {
-        val scale = Math.max(Math.min(s, MAX_SCALE), MIN_SCALE)
+        val scale = Math.max(Math.min(s, MAX_SCALE), INIT_SCALE)
         Log.d(TAG, "restrictScale():$s -> $scale")
         _matrix.setScale(scale, scale, x, y)
         imageMatrix = _matrix

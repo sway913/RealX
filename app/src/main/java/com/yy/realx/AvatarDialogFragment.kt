@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -134,7 +135,6 @@ class AvatarDialogFragment : DialogFragment() {
         Log.d(TAG, "prepareAvatarView()")
         val bundle = arguments ?: return false
         val path = bundle.getString(KEY_PATH) ?: return false
-        avatar_image.setImageURI(Uri.fromFile(File(path)))
         avatar_done.setOnClickListener {
             if (isDetecting.get()) {
                 return@setOnClickListener
@@ -166,7 +166,6 @@ class AvatarDialogFragment : DialogFragment() {
                 return@Observer
             }
             avatar_waiting.visibility = View.GONE
-            avatar_image.setImageURI(Uri.fromFile(File(path)))
             avatar_done.isEnabled = true
         })
         return true
@@ -237,7 +236,23 @@ class AvatarDialogFragment : DialogFragment() {
             } else {
                 avatar_image.setImageURI(Uri.fromFile(File(path)))
             }
+            restrictAvatarView(avatar_image.drawable)
         }
+    }
+
+    /**
+     * 缩放view适应宽高
+     */
+    private fun restrictAvatarView(drawable: Drawable) {
+        val ratio: Float = drawable.intrinsicWidth.toFloat() / drawable.intrinsicHeight.toFloat()
+        val display = context!!.resources.displayMetrics
+        val params = avatar_image.layoutParams
+        params.width = display.widthPixels
+        params.height = (display.widthPixels / ratio).toInt()
+        avatar_image.layoutParams = params
+        //限定缩放值
+        val min: Float = display.widthPixels.toFloat() / drawable.intrinsicWidth.toFloat()
+        avatar_image.setMinScale(min)
     }
 
     /**
