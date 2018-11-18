@@ -280,6 +280,22 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val scale = Math.max(Math.min(s, MAX_SCALE), INIT_SCALE)
         Log.d(TAG, "restrictScale():$s -> $scale")
         _matrix.setScale(scale, scale, x, y)
+        val rect = getMatrixRect()
+        var deltaX = 0f
+        var deltaY = 0f
+        if (rect.top > 0) {
+            deltaY = -rect.top
+        }
+        if (rect.bottom < height) {
+            deltaY = height - rect.bottom
+        }
+        if (rect.left > 0) {
+            deltaX = -rect.left
+        }
+        if (rect.right < width) {
+            deltaX = width - rect.right
+        }
+        _matrix.postTranslate(deltaX, deltaY)
         imageMatrix = _matrix
         //重新标记点
         coordinates.clear()
