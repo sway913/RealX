@@ -114,8 +114,8 @@ class EditFragment : Fragment() {
             if (mixing.get()) {
                 return@setOnItemClickListener false
             } else {
-                // applyMixer(audio, it)
-                applyMixerNew(audio, it)
+                applyMixer(audio, it)
+                // applyMixerNew(audio, it)
                 return@setOnItemClickListener true
             }
         }
@@ -166,10 +166,6 @@ class EditFragment : Fragment() {
      * 新的混音接口
      */
     private fun applyMixerNew(audio: AudioSettings, mixer: MixerItem) {
-        if (mixing.get()) {
-            return
-        }
-        mixing.set(true)
         val log = audio.path.replace(".wav", ".log")
         IOneKeyTunerApi.CreateOneKeyTuner(log)
         val tuner = audio.tuner
@@ -204,15 +200,20 @@ class EditFragment : Fragment() {
      */
     private fun applyMixer(audio: AudioSettings, mixer: MixerItem) {
         Log.d(TAG, "applyMixer():${mixer.name}")
+        if (mixing.get()) {
+            return
+        }
+        mixing.set(true)
         mTimer.schedule(0) {
             val path = if (toggle_music.isChecked) {
-                audio.mixer
+                audio.tuner
             } else {
                 audio.path
             }
+            val accompany = getAccompanyBy(mixer.key)
             val engine = KaraokeFileMixer()
             engine.Init()
-            if (!engine.Open(path, "")) {
+            if (!engine.Open(path, accompany)) {
                 return@schedule
             }
             engine.EnableEqualizer(mixer.eqEnable)
@@ -246,13 +247,13 @@ class EditFragment : Fragment() {
                     Log.d(TAG, "OnFinishMixer():${audio.mixer}")
                     engine.Stop()
                     engine.Destroy()
-                    FileUtils.deleteFileSafely(File(audio.mixer))
                     val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
                     AudioUtils.TransAudioFileToWav(aac, audio.mixer, duration)
                     updateMixerByNow(audio)
                     mixing.set(false)
                 }
             })
+            FileUtils.deleteFileSafely(File(audio.mixer))
             val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
             if (!engine.Start(aac)) {
                 return@schedule
