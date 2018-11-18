@@ -52,12 +52,6 @@ class EditFragment : Fragment() {
         prepareEditView()
     }
 
-    private val mEngine: KaraokeFileMixer by lazy {
-        KaraokeFileMixer().apply {
-            IAudioLibJniInit.InitLib(context)
-        }
-    }
-
     private val mModel: RealXViewModel by lazy {
         ViewModelProviders.of(activity!!).get(RealXViewModel::class.java)
     }
@@ -181,27 +175,30 @@ class EditFragment : Fragment() {
             val path = if (toggle_music.isChecked) audio.tuner else audio.path
             val accompany = getAccompanyBy(mixer.key)
             Log.d(TAG, "getAccompanyBy():$accompany")
-            if (!mEngine.Open(path, accompany)) {
+            val engine = KaraokeFileMixer()
+            engine.Init()
+            if (!engine.Open(path, accompany)) {
                 return@schedule
             }
-            mEngine.EnableEqualizer(mixer.eqEnable)
+            engine.EnableEqualizer(mixer.eqEnable)
             if (mixer.eqEnable) {
-                mEngine.SetEqGains(mixer.eq)
+                engine.SetEqGains(mixer.eq)
             }
-            mEngine.EnableCompressor(mixer.compressEnable)
+            engine.EnableCompressor(mixer.compressEnable)
             if (mixer.compressEnable) {
-                mEngine.SetCompressorParam(mixer.compressor)
+                engine.SetCompressorParam(mixer.compressor)
             }
-            mEngine.EnableReverbNew(mixer.reverbEnable)
+            engine.EnableReverbNew(mixer.reverbEnable)
             if (mixer.reverbEnable) {
-                mEngine.SetReverbNewParam(mixer.reverb)
+                engine.SetReverbNewParam(mixer.reverb)
             }
-            mEngine.EnableLimiter(mixer.limiterEnable)
+            engine.EnableLimiter(mixer.limiterEnable)
             if (mixer.limiterEnable) {
-                mEngine.SetLimiterParam(mixer.limiter)
+                engine.SetLimiterParam(mixer.limiter)
             }
-            mEngine.SetVoiceVolume(100)
-            mEngine.SetKaraokeFileMixerNotify(object : IKaraokeFileMixerNotity {
+            engine.SetAccompanyVolume(100)
+            engine.SetVoiceVolume(100)
+            engine.SetKaraokeFileMixerNotify(object : IKaraokeFileMixerNotity {
                 var duration: Long = 0
 
                 override fun OnFileMixerState(progress: Long, total: Long) {
@@ -212,7 +209,8 @@ class EditFragment : Fragment() {
 
                 override fun OnFinishMixer() {
                     Log.d(TAG, "OnFinishMixer():${audio.mixer}")
-                    mEngine.Stop()
+                    engine.Stop()
+                    engine.Destroy()
                     val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
                     AudioUtils.TransAudioFileToWav(aac, audio.mixer, duration)
                     updateMixerByNow(audio, accompany)
@@ -221,7 +219,7 @@ class EditFragment : Fragment() {
             })
             FileUtils.deleteFileSafely(File(audio.mixer))
             val aac = audio.mixer.replace(AudioSettings.EXT, ".aac")
-            if (!mEngine.Start(aac)) {
+            if (!engine.Start(aac)) {
                 return@schedule
             }
         }
@@ -507,7 +505,7 @@ class EditFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mEngine.Init()
+        IAudioLibJniInit.InitLib(context)
     }
 
     override fun onResume() {
@@ -523,7 +521,6 @@ class EditFragment : Fragment() {
     override fun onDestroy() {
         super.onDestroy()
         release()
-        mEngine.Destroy()
         mTimer.cancel()
     }
 }
