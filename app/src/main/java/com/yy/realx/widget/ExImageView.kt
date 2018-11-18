@@ -93,6 +93,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 重新设定值
      */
     private fun remarkBackward() {
+        Log.d(TAG, "remarkBackward()")
         val scale = getNowScale()
         val translate = getNowTranslate()
         var point: PointF

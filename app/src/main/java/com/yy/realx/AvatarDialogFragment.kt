@@ -139,10 +139,15 @@ class AvatarDialogFragment : DialogFragment() {
             if (isDetecting.get()) {
                 return@setOnClickListener
             }
-            val values = avatar_image.getValues()
-            val avatar = mModel.effect.value?.avatar
-            if (null != avatar) {
-                mModel.effect.value?.avatar = AvatarSettings(avatar.path, values, avatar.auto)
+            val item = mModel.effect.value
+            if (null != item) {
+                val effect = EffectSettings(item.name, item.thumb, item.feature, item.isNew)
+                val avatar = mModel.effect.value?.avatar
+                if (null != avatar) {
+                    val values = avatar_image.getValues()
+                    effect.avatar = AvatarSettings(avatar.path, values, avatar.auto)
+                }
+                mModel.effect.value = effect
             }
             dismiss()
         }
