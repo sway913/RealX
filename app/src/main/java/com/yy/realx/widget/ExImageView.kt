@@ -45,6 +45,13 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
+    /**
+     * 返回修正后的点
+     */
+    fun getValues(): MutableList<Float> {
+        return values
+    }
+
     private val coordinates = mutableListOf<Float>()
     private val points = mutableListOf<PointF>()
 

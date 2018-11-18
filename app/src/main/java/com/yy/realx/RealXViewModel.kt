@@ -113,7 +113,7 @@ data class EffectSettings(val name: String, val thumb: String, val feature: Int 
 /**
  * 人脸数据
  */
-data class AvatarSettings(val path: String, val values: List<Float> = emptyList(), val auto: Boolean = true) {
+data class AvatarSettings(val path: String, var values: List<Float> = emptyList(), val auto: Boolean = true) {
     private val bytes = mutableListOf<Byte>()
     /**
      * 换算255

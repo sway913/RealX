@@ -139,6 +139,11 @@ class AvatarDialogFragment : DialogFragment() {
             if (isDetecting.get()) {
                 return@setOnClickListener
             }
+            val values = avatar_image.getValues()
+            val avatar = mModel.effect.value?.avatar
+            if (null != avatar) {
+                mModel.effect.value?.avatar = AvatarSettings(avatar.path, values, avatar.auto)
+            }
             dismiss()
         }
         avatar_waiting.visibility = View.VISIBLE
