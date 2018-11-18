@@ -177,7 +177,7 @@ class RecordFragment : Fragment() {
         var amplitude = 0
         mVideoRecord.setEnableAudioRecord(true)
         mVideoRecord.setAudioRecordListener { avgAmplitude, maxAmplitude ->
-//            Log.d(TAG, "onVolume():$avgAmplitude, $maxAmplitude")
+            // Log.d(TAG, "onVolume():$avgAmplitude, $maxAmplitude")
             synchronized(mModel) {
                 frames++
                 amplitude += avgAmplitude

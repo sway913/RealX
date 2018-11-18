@@ -180,6 +180,7 @@ class EditFragment : Fragment() {
             audio.accompany = mixer.key
             val path = if (toggle_music.isChecked) audio.tuner else audio.path
             val accompany = getAccompanyBy(mixer.key)
+            Log.d(TAG, "getAccompanyBy():$accompany")
             if (!mEngine.Open(path, accompany)) {
                 return@schedule
             }
@@ -230,9 +231,8 @@ class EditFragment : Fragment() {
      * 使用音效
      */
     private fun updateMixerByNow(audio: AudioSettings, accompany: String) {
-        Log.d(TAG, "updateMixerByNow():${audio.mixer}, ${audio.hashCode()}")
+        Log.d(TAG, "updateMixerByNow():${audio.mixer}, ${audio.hashCode()}, $accompany")
         music.setBackgroundMusic(audio.mixer, 0.0f, 1.0f)
-        music.magicAudioFilePath = accompany
         mViewInternal.setVFilters(music)
         seekTo(0)
     }
@@ -246,6 +246,11 @@ class EditFragment : Fragment() {
             music.setBackgroundMusic(audio.tuner, 0.0f, 1.0f)
         } else {
             music.setBackgroundMusic(audio.path, 0.0f, 1.0f)
+        }
+        activity!!.runOnUiThread {
+            val adapter = (toggle_mixer.adapter as MixerAdapter)
+            adapter.selected = null
+            adapter.notifyDataSetChanged()
         }
         mViewInternal.setVFilters(music)
         seekTo(0)
@@ -313,7 +318,6 @@ class EditFragment : Fragment() {
             filter.exportBgm = audio.tuner
         }
         filter.setBackgroundMusic(filter.exportBgm, 0.0f, 1.0f)
-        filter.magicAudioFilePath = getAccompanyBy(audio.accompany)
         val export = VideoExport(context, video.path, out, filter)
         export.setMediaListener(object : IMediaListener {
             override fun onProgress(progress: Float) {
