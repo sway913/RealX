@@ -92,7 +92,8 @@ class RecordFragment : Fragment() {
             total = (mModel.video.value?.duration ?: 0).toFloat() / 1000
             activity!!.runOnUiThread {
                 record_ms.text = String.format(Locale.getDefault(), "%.2fs", total)
-                toggle_record.setImageResource(R.drawable.btn_stop_record)
+                // toggle_record.setImageResource(R.drawable.btn_stop_record)
+                toggle_record.isSelected = true
             }
         }
 
@@ -116,7 +117,8 @@ class RecordFragment : Fragment() {
                 clear_video.isEnabled = video.segments.isNotEmpty()
                 btn_finish.isEnabled = video.segments.isNotEmpty()
                 record_ms.text = ""
-                toggle_record.setImageResource(R.drawable.btn_start_record)
+                // toggle_record.setImageResource(R.drawable.btn_start_record)
+                toggle_record.isSelected = false
             }
         }
     }
