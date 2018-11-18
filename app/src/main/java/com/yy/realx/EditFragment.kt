@@ -171,7 +171,7 @@ class EditFragment : Fragment() {
         val tuner = audio.tuner
         val accompany = getAccompanyBy(mixer.key)
         FileUtils.deleteFileSafely(File(audio.mixer))
-        IOneKeyTunerApi.MixVoiceAndAccompany(tuner, accompany, audio.mixer)
+        IOneKeyTunerApi.OneKeyMixerStartThread(tuner, accompany, audio.mixer)
         mTimer.scheduleAtFixedRate(0, 100) {
             val progress = IOneKeyTunerApi.GetMixProgress()
             when (progress) {
