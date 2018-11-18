@@ -114,7 +114,8 @@ class EditFragment : Fragment() {
             if (mixing.get()) {
                 return@setOnItemClickListener false
             } else {
-                applyMixer(audio, it)
+                // applyMixer(audio, it)
+                applyMixerNew(audio, it)
                 return@setOnItemClickListener true
             }
         }
@@ -160,6 +161,38 @@ class EditFragment : Fragment() {
     }
 
     val mixing = AtomicBoolean(false)
+
+    /**
+     * 新的混音接口
+     */
+    private fun applyMixerNew(audio: AudioSettings, mixer: MixerItem) {
+        val log = audio.path.replace(".wav", ".log")
+        IOneKeyTunerApi.CreateOneKeyTuner(log)
+        val tuner = audio.tuner
+        val accompany = getAccompanyBy(mixer.key)
+        FileUtils.deleteFileSafely(File(audio.mixer))
+        IOneKeyTunerApi.MixVoiceAndAccompany(tuner, accompany, audio.mixer)
+        mTimer.scheduleAtFixedRate(0, 100) {
+            val progress = IOneKeyTunerApi.GetMixProgress()
+            when (progress) {
+                -1 -> {
+                    Log.d(TAG, "VolProcessError():$progress")
+                    IOneKeyTunerApi.Destroy()
+                    cancel()
+                }
+                100 -> {
+                    Log.d(TAG, "VolProcessFinish():$progress")
+                    IOneKeyTunerApi.Destroy()
+                    cancel()
+                    //设置背景音乐
+                    updateMixerByNow(audio, accompany)
+                }
+                else -> {
+                    Log.d(TAG, "VolProcessProcess():$progress")
+                }
+            }
+        }
+    }
 
     /**
      * 音调处理
@@ -278,13 +311,13 @@ class EditFragment : Fragment() {
             val progress = IOneKeyTunerApi.GetProgress()
             when (progress) {
                 -1 -> {
-                    Log.d(TAG, "VolProcessError()$progress")
+                    Log.d(TAG, "VolProcessError():$progress")
                     IOneKeyTunerApi.Destroy()
                     cancel()
                     dialog.dismiss()
                 }
                 100 -> {
-                    Log.d(TAG, "VolProcessFinish()$progress")
+                    Log.d(TAG, "VolProcessFinish():$progress")
                     IOneKeyTunerApi.Destroy()
                     cancel()
                     dialog.dismiss()
