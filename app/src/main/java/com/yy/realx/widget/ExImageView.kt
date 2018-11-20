@@ -253,8 +253,8 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 val translate = getNowTranslate()
                 val scale = getNowScale()
                 Log.d(TAG, "onScale():${translate.x}, ${translate.y}, $scale")
-                val x = detector.focusX
-                val y = detector.focusY
+                val x = (detector.focusX - translate.x) / scale
+                val y = (detector.focusY - translate.y) / scale
                 Log.d(TAG, "onScale():$x, $y")
                 restrictScale(scale * detector.scaleFactor, x, y)
             }
