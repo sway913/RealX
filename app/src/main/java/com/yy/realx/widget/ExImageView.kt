@@ -238,22 +238,7 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private fun restrictTranslate(x: Float, y: Float) {
         Log.d(TAG, "restrictTranslate()")
         _matrix.postTranslate(x, y)
-        val rect = getMatrixRect()
-        var deltaX = 0f
-        var deltaY = 0f
-        if (rect.top > 0) {
-            deltaY = -rect.top
-        }
-        if (rect.bottom < height) {
-            deltaY = height - rect.bottom
-        }
-        if (rect.left > 0) {
-            deltaX = -rect.left
-        }
-        if (rect.right < width) {
-            deltaX = width - rect.right
-        }
-        _matrix.postTranslate(deltaX, deltaY)
+        restrictMatrixBound()
         imageMatrix = _matrix
         //重新标记点
         translate.set(true)
@@ -266,8 +251,12 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             Log.d(TAG, "onScale():${detector?.focusX}, ${detector?.focusY}")
             if (null != detector) {
                 val translate = getNowTranslate()
-                Log.d(TAG, "onScale():${translate.x}, ${translate.y}")
-                restrictScale(getNowScale() * detector.scaleFactor, detector.focusX, detector.focusY)
+                val scale = getNowScale()
+                Log.d(TAG, "onScale():${translate.x}, ${translate.y}, $scale")
+                val x = detector.focusX
+                val y = detector.focusY
+                Log.d(TAG, "onScale():$x, $y")
+                restrictScale(scale * detector.scaleFactor, x, y)
             }
             return true
         }
@@ -280,6 +269,16 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val scale = Math.max(Math.min(s, MAX_SCALE), INIT_SCALE)
         Log.d(TAG, "restrictScale():$s -> $scale")
         _matrix.setScale(scale, scale, x, y)
+        restrictMatrixBound()
+        imageMatrix = _matrix
+        //重新标记点
+        coordinates.clear()
+    }
+
+    /**
+     * 约束试图边界
+     */
+    private fun restrictMatrixBound() {
         val rect = getMatrixRect()
         var deltaX = 0f
         var deltaY = 0f
@@ -296,9 +295,6 @@ class ExImageView @JvmOverloads constructor(context: Context, attrs: AttributeSe
             deltaX = width - rect.right
         }
         _matrix.postTranslate(deltaX, deltaY)
-        imageMatrix = _matrix
-        //重新标记点
-        coordinates.clear()
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
