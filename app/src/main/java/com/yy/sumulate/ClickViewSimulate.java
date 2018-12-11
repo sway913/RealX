@@ -1,6 +1,5 @@
 package com.yy.sumulate;
 
-import android.app.Activity;
 import android.util.Log;
 import android.view.InputEvent;
 import android.view.View;
@@ -12,18 +11,17 @@ public class ClickViewSimulate extends InputEventSimulate {
 
     /**
      * 构造函数
-     *
-     * @param base
      */
-    public ClickViewSimulate(Activity base, View view) {
-        super(base);
+    public ClickViewSimulate(View view) {
         this.target = view;
         if (null == target) {
             throw new IllegalArgumentException("View target cannot be null.");
         }
-        int x = (int) (target.getX() + target.getWidth() / 2);
-        int y = (int) (target.getY() + target.getHeight() / 2);
-        real = ClickPointSimulate.obtain(base, x, y);
+        int[] location = new int[2];
+        target.getLocationOnScreen(location);
+        int x = location[0] + target.getWidth() / 2;
+        int y = location[1] + target.getHeight() / 2;
+        real = ClickPointSimulate.obtain(x, y);
     }
 
     @Override
@@ -35,12 +33,11 @@ public class ClickViewSimulate extends InputEventSimulate {
     /**
      * 静态创建方式
      *
-     * @param base
      * @param view
      * @return
      */
-    public static final ClickViewSimulate obtain(Activity base, View view) {
-        ClickViewSimulate simulate = new ClickViewSimulate(base, view);
+    public static final ClickViewSimulate obtain(View view) {
+        ClickViewSimulate simulate = new ClickViewSimulate(view);
         return simulate;
     }
 }

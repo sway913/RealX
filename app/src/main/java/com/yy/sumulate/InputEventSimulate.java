@@ -1,7 +1,5 @@
 package com.yy.sumulate;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Instrumentation;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -12,41 +10,12 @@ import android.view.InputEvent;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class InputEventSimulate implements Runnable {
     private static final String TAG = InputEventSimulate.class.getSimpleName();
-    protected final Activity base;
-    private Instrumentation inst;
+    private Instrumentation inst = new Instrumentation();
     private AtomicInteger seq = new AtomicInteger(0);
-
-    /**
-     * 构造函数
-     *
-     * @param base
-     */
-    @SuppressLint("PrivateApi")
-    public InputEventSimulate(Activity base) {
-        if (null == base) {
-            throw new IllegalArgumentException("Activity host cannot be null.");
-        }
-        this.base = base;
-        //反射获取inst
-        try {
-            Class<?> clazz = Class.forName("android.app.ActivityThread");
-            Method method = clazz.getDeclaredMethod("currentActivityThread");
-            method.setAccessible(true);
-            Object thread = method.invoke(null);
-            Field field = clazz.getDeclaredField("mInstrumentation");
-            field.setAccessible(true);
-            inst = (Instrumentation) field.get(thread);
-        } catch (Exception e) {
-            e.printStackTrace();
-            inst = null;
-        }
-    }
 
     @CallSuper
     @Override
@@ -56,30 +25,10 @@ public abstract class InputEventSimulate implements Runnable {
         if (null != event) {
             if (event instanceof KeyEvent) {
                 final KeyEvent keyEvent = (KeyEvent) event;
-//                if (null != inst) {
-//                    inst.sendKeySync(keyEvent);
-//                    inst.waitForIdleSync();
-//                } else {
-                    base.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            base.dispatchKeyEvent(keyEvent);
-                        }
-                    });
-//                }
+                inst.sendKeySync(keyEvent);
             } else if (event instanceof MotionEvent) {
                 final MotionEvent motionEvent = (MotionEvent) event;
-//                if (null != inst) {
-//                    inst.sendPointerSync(motionEvent);
-//                    inst.waitForIdleSync();
-//                } else {
-                    base.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            base.dispatchTouchEvent(motionEvent);
-                        }
-                    });
-//                }
+                inst.sendPointerSync(motionEvent);
             }
             //loop next
             handler.postDelayed(this, 30);

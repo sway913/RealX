@@ -1,6 +1,5 @@
 package com.yy.sumulate;
 
-import android.app.Activity;
 import android.graphics.Point;
 import android.view.InputEvent;
 import android.view.MotionEvent;
@@ -10,11 +9,8 @@ public class MoveEventSimulate extends InputEventSimulate {
 
     /**
      * 构造函数
-     *
-     * @param base
      */
-    public MoveEventSimulate(Activity base, Point point) {
-        super(base);
+    public MoveEventSimulate(Point point) {
         this.point = point;
         if (null == point) {
             throw new IllegalArgumentException("point cannot be null.");
@@ -32,25 +28,23 @@ public class MoveEventSimulate extends InputEventSimulate {
     /**
      * 静态创建方式
      *
-     * @param base
      * @param x
      * @param y
      * @return
      */
-    public static MoveEventSimulate obtain(Activity base, int x, int y) {
+    public static MoveEventSimulate obtain(int x, int y) {
         Point point = new Point(x, y);
-        return obtain(base, point);
+        return obtain(point);
     }
 
     /**
      * 静态创建方法
      *
-     * @param base
      * @param point
      * @return
      */
-    public static final MoveEventSimulate obtain(Activity base, Point point) {
-        MoveEventSimulate simulate = new MoveEventSimulate(base, point);
+    public static final MoveEventSimulate obtain(Point point) {
+        MoveEventSimulate simulate = new MoveEventSimulate(point);
         return simulate;
     }
 }

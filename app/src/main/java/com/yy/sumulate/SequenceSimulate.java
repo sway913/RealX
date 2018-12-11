@@ -1,6 +1,5 @@
 package com.yy.sumulate;
 
-import android.app.Activity;
 import android.graphics.Point;
 import android.util.Log;
 import android.view.InputEvent;
@@ -13,16 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SequenceSimulate extends InputEventSimulate {
     private final static String TAG = SequenceSimulate.class.getSimpleName();
     private final List<InputEventSimulate> group = new ArrayList<>();
-
-    /**
-     * 构造函数
-     *
-     * @param base
-     */
-    public SequenceSimulate(Activity base) {
-        super(base);
-    }
-
     private int index = 0;
     private AtomicInteger _seq = new AtomicInteger(0);
 
@@ -46,17 +35,17 @@ public class SequenceSimulate extends InputEventSimulate {
      * @param to
      */
     public SequenceSimulate addSmoothMoveSimulate(Point from, Point to) {
-        int slop = ViewConfiguration.get(base).getScaledTouchSlop();
+        int slop = Math.max(ViewConfiguration.getTouchSlop(), 8);
         int limit = Math.max(Math.max(Math.abs(to.x - from.x) / slop, Math.abs(to.y - from.y) / slop), 1);
         int dx = (to.x - from.x) / limit;
         int dy = (to.y - from.y) / limit;
         MoveEventSimulate move = null;
         for (int i = 0; i <= limit; i++) {
-            move = MoveEventSimulate.obtain(base, from.x + dx * i, from.y + dy * i);
+            move = MoveEventSimulate.obtain(from.x + dx * i, from.y + dy * i);
             addSimulate(move);
         }
         if (null != move && !move.point.equals(to)) {
-            addSimulate(MoveEventSimulate.obtain(base, to));
+            addSimulate(MoveEventSimulate.obtain(to));
         }
         return this;
     }
