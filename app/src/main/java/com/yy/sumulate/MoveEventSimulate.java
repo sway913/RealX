@@ -20,7 +20,7 @@ public class MoveEventSimulate extends InputEventSimulate {
     @Override
     InputEvent createInputEvent(int seq) {
         if (seq == 0) {
-            return obtain(MotionEvent.ACTION_DOWN, point.x, point.y);
+            return obtain(MotionEvent.ACTION_MOVE, point.x, point.y);
         }
         return null;
     }

@@ -1,9 +1,7 @@
 package com.yy.sumulate;
 
-import android.graphics.Point;
 import android.util.Log;
 import android.view.InputEvent;
-import android.view.ViewConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,28 +23,6 @@ public class SequenceSimulate extends InputEventSimulate {
             return this;
         }
         group.add(task);
-        return this;
-    }
-
-    /**
-     * 产生平滑move事件
-     *
-     * @param from
-     * @param to
-     */
-    public SequenceSimulate addSmoothMoveSimulate(Point from, Point to) {
-        int slop = Math.max(ViewConfiguration.getTouchSlop(), 8);
-        int limit = Math.max(Math.max(Math.abs(to.x - from.x) / slop, Math.abs(to.y - from.y) / slop), 1);
-        int dx = (to.x - from.x) / limit;
-        int dy = (to.y - from.y) / limit;
-        MoveEventSimulate move = null;
-        for (int i = 0; i <= limit; i++) {
-            move = MoveEventSimulate.obtain(from.x + dx * i, from.y + dy * i);
-            addSimulate(move);
-        }
-        if (null != move && !move.point.equals(to)) {
-            addSimulate(MoveEventSimulate.obtain(to));
-        }
         return this;
     }
 
